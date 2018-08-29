@@ -1,0 +1,234 @@
+mysql -h seaquel.physics.illinois.edu --user=seaguest -P 3283 -pqqbar2mu+mu-
+
+show databases like '%M026_S002%';
+
+mysql -h e906-db3.fnal.gov --user=seaguest -P 3306 -pqqbar2mu+mu-
+show databases like '%R008';
+
+mysql -h seaquestdb01.fnal.gov --user=seaguest -P 3310 -pqqbar2mu+mu-
+show databases like '%R008';
+
+015789     197227      e906-db2.fnal.gov
+15789	67	seaquel.physics.illinois.edu	-1
+
+
+for "Mix" use the targetPos, otherwise get using spillID and Spill.targetPos
+
+kDimuon.isValid, isTarget, isDump are old cuts, prefer kTrack.chisq
+
+Spill.dataQuality = 0 for good spills
+
+Spill.liveProton for lumi
+
+use run_015789_R008;
+use run_015789_R007;
+show tables;
+
+
+mysql> desc kDimuon;
++-----------------+-------------+------+-----+---------+-------+
+| Field           | Type        | Null | Key | Default | Extra |
++-----------------+-------------+------+-----+---------+-------+
+| dimuonID        | int(11)     | NO   | PRI | 0       |       |
+| runID           | smallint(6) | YES  |     | NULL    |       |
+| spillID         | int(11)     | YES  | MUL | NULL    |       |
+| eventID         | int(11)     | YES  | MUL | NULL    |       |
+| targetPos       | int(11)     | YES  |     | NULL    |       |
+| posTrackID      | int(11)     | YES  |     | NULL    |       |
+| negTrackID      | int(11)     | YES  |     | NULL    |       |
+| dx              | double      | YES  |     | NULL    |       |
+| dy              | double      | YES  |     | NULL    |       |
+| dz              | double      | YES  |     | NULL    |       |
+| dpx             | double      | YES  |     | NULL    |       |
+| dpy             | double      | YES  |     | NULL    |       |
+| dpz             | double      | YES  |     | NULL    |       |
+| mass            | double      | YES  |     | NULL    |       |
+| xF              | double      | YES  |     | NULL    |       |
+| xB              | double      | YES  |     | NULL    |       |
+| xT              | double      | YES  |     | NULL    |       |
+| costh           | double      | YES  |     | NULL    |       |
+| phi             | double      | YES  |     | NULL    |       |
+| trackSeparation | double      | YES  |     | NULL    |       |
+| chisq_dimuon    | double      | YES  |     | NULL    |       |
+| px1             | double      | YES  |     | NULL    |       |
+| py1             | double      | YES  |     | NULL    |       |
+| pz1             | double      | YES  |     | NULL    |       |
+| px2             | double      | YES  |     | NULL    |       |
+| py2             | double      | YES  |     | NULL    |       |
+| pz2             | double      | YES  |     | NULL    |       |
+| isValid         | int(11)     | YES  |     | NULL    |       |
+| isTarget        | int(11)     | YES  |     | NULL    |       |
+| isDump          | int(11)     | YES  |     | NULL    |       |
++-----------------+-------------+------+-----+---------+-------+
+kDimuon.mass
+kDimuon.xF
+kDimuon.xB
+kDimuon.xT
+kDimuon.chisq_dimuon
+
+mysql> desc kTrack;
++----------------+-------------+------+-----+---------+-------+
+| Field          | Type        | Null | Key | Default | Extra |
++----------------+-------------+------+-----+---------+-------+
+| trackID        | int(11)     | NO   | PRI | 0       |       |
+| runID          | smallint(6) | YES  |     | NULL    |       |
+| spillID        | int(11)     | YES  | MUL | NULL    |       |
+| eventID        | int(11)     | YES  | MUL | NULL    |       |
+| charge         | int(11)     | YES  |     | NULL    |       |
+| roadID         | int(11)     | YES  |     | NULL    |       |
+| numHits        | int(11)     | YES  |     | NULL    |       |
+| numHitsSt1     | int(11)     | YES  |     | NULL    |       |
+| numHitsSt2     | int(11)     | YES  |     | NULL    |       |
+| numHitsSt3     | int(11)     | YES  |     | NULL    |       |
+| numHitsSt4H    | int(11)     | YES  |     | NULL    |       |
+| numHitsSt4V    | int(11)     | YES  |     | NULL    |       |
+| chisq          | double      | YES  |     | NULL    |       |
+| x0             | double      | YES  |     | NULL    |       |
+| y0             | double      | YES  |     | NULL    |       |
+| z0             | double      | YES  |     | NULL    |       |
+| xD             | double      | YES  |     | NULL    |       |
+| yD             | double      | YES  |     | NULL    |       |
+| xT             | double      | YES  |     | NULL    |       |
+| yT             | double      | YES  |     | NULL    |       |
+| pxD            | double      | YES  |     | NULL    |       |
+| pyD            | double      | YES  |     | NULL    |       |
+| pzD            | double      | YES  |     | NULL    |       |
+| pxT            | double      | YES  |     | NULL    |       |
+| pyT            | double      | YES  |     | NULL    |       |
+| pzT            | double      | YES  |     | NULL    |       |
+| z0x            | double      | YES  |     | NULL    |       |
+| z0y            | double      | YES  |     | NULL    |       |
+| px0            | double      | YES  |     | NULL    |       |
+| py0            | double      | YES  |     | NULL    |       |
+| pz0            | double      | YES  |     | NULL    |       |
+| x1             | double      | YES  |     | NULL    |       |
+| y1             | double      | YES  |     | NULL    |       |
+| z1             | double      | YES  |     | NULL    |       |
+| px1            | double      | YES  |     | NULL    |       |
+| py1            | double      | YES  |     | NULL    |       |
+| pz1            | double      | YES  |     | NULL    |       |
+| x3             | double      | YES  |     | NULL    |       |
+| y3             | double      | YES  |     | NULL    |       |
+| z3             | double      | YES  |     | NULL    |       |
+| px3            | double      | YES  |     | NULL    |       |
+| py3            | double      | YES  |     | NULL    |       |
+| pz3            | double      | YES  |     | NULL    |       |
+| thbend         | double      | YES  |     | NULL    |       |
+| tx_PT          | double      | YES  |     | NULL    |       |
+| ty_PT          | double      | YES  |     | NULL    |       |
+| chisq_target   | double      | YES  |     | NULL    |       |
+| chisq_dump     | double      | YES  |     | NULL    |       |
+| chisq_upstream | double      | YES  |     | NULL    |       |
+| kmstatus       | smallint(6) | YES  |     | NULL    |       |
++----------------+-------------+------+-----+---------+-------+
+charge
+numHits
+chisq
+chisq_target
+chisq_dump
+chisq_upstream
+
+mysql> desc Spill;
++----------------+----------------------+------+-----+---------+-------+
+| Field          | Type                 | Null | Key | Default | Extra |
++----------------+----------------------+------+-----+---------+-------+
+| spillID        | int(8) unsigned      | NO   | MUL | NULL    |       |
+| runID          | smallint(5) unsigned | NO   |     | NULL    |       |
+| liveProton     | bigint(20) unsigned  | YES  |     | NULL    |       |
+| targetPos      | tinyint(3) unsigned  | NO   | MUL | NULL    |       |
+| dataQuality    | bigint(20) unsigned  | YES  |     | 0       |       |
+| BOScodaEventID | int(10) unsigned     | NO   |     | NULL    |       |
+| BOSvmeTime     | int(8) unsigned      | NO   |     | NULL    |       |
+| EOScodaEventID | int(10) unsigned     | YES  |     | NULL    |       |
+| EOSvmeTime     | int(8) unsigned      | YES  |     | NULL    |       |
+| time           | datetime             | YES  |     | NULL    |       |
++----------------+----------------------+------+-----+---------+-------+
+Spill.targetPos
+Spill.dataQuality
+
+mysql> desc Event;
++-----------------+-----------------------+------+-----+---------+-------+
+| Field           | Type                  | Null | Key | Default | Extra |
++-----------------+-----------------------+------+-----+---------+-------+
+| eventID         | int(10) unsigned      | NO   | MUL | NULL    |       |
+| codaEventID     | int(10) unsigned      | NO   |     | NULL    |       |
+| runID           | smallint(5) unsigned  | NO   |     | NULL    |       |
+| spillID         | int(8) unsigned       | NO   | MUL | NULL    |       |
+| NIM1            | tinyint(3) unsigned   | YES  |     | 0       |       |
+| NIM2            | tinyint(3) unsigned   | YES  |     | 0       |       |
+| NIM3            | tinyint(3) unsigned   | YES  |     | 0       |       |
+| NIM4            | tinyint(3) unsigned   | YES  |     | 0       |       |
+| NIM5            | tinyint(3) unsigned   | YES  |     | 0       |       |
+| MATRIX1         | tinyint(3) unsigned   | YES  |     | 0       |       |
+| MATRIX2         | tinyint(3) unsigned   | YES  |     | 0       |       |
+| MATRIX3         | tinyint(3) unsigned   | YES  |     | 0       |       |
+| MATRIX4         | tinyint(3) unsigned   | YES  |     | 0       |       |
+| MATRIX5         | tinyint(3) unsigned   | YES  |     | 0       |       |
+| RawMATRIX1      | int(11)               | YES  |     | 0       |       |
+| AfterInhMATRIX1 | int(11)               | YES  |     | 0       |       |
+| RawMATRIX2      | int(11)               | YES  |     | 0       |       |
+| AfterInhMATRIX2 | int(11)               | YES  |     | 0       |       |
+| RawMATRIX3      | int(11)               | YES  |     | 0       |       |
+| AfterInhMATRIX3 | int(11)               | YES  |     | 0       |       |
+| RawMATRIX4      | int(11)               | YES  |     | 0       |       |
+| AfterInhMATRIX4 | int(11)               | YES  |     | 0       |       |
+| RawMATRIX5      | int(11)               | YES  |     | 0       |       |
+| AfterInhMATRIX5 | int(11)               | YES  |     | 0       |       |
+| dataQuality     | mediumint(8) unsigned | YES  |     | 0       |       |
+| vmeTime         | int(8) unsigned       | NO   |     | NULL    |       |
++-----------------+-----------------------+------+-----+---------+-------+
+Event.NIM1
+Event.NIM3
+Event.MATRIX1
+Event.MATRIX2
+Event.MATRIX3
+Event.dataQuality?
+
+mysql> desc Occupancy;
++---------+----------------------+------+-----+---------+-------+
+| Field   | Type                 | Null | Key | Default | Extra |
++---------+----------------------+------+-----+---------+-------+
+| runID   | smallint(5) unsigned | NO   |     | NULL    |       |
+| spillID | int(8) unsigned      | NO   | MUL | NULL    |       |
+| eventID | int(10) unsigned     | NO   | MUL | NULL    |       |
+| D1      | mediumint(9)         | NO   |     | NULL    |       |
+| D2      | mediumint(9)         | NO   |     | NULL    |       |
+| D3      | mediumint(9)         | NO   |     | NULL    |       |
+| H1      | mediumint(9)         | NO   |     | NULL    |       |
+| H2      | mediumint(9)         | NO   |     | NULL    |       |
+| H3      | mediumint(9)         | NO   |     | NULL    |       |
+| H4      | mediumint(9)         | NO   |     | NULL    |       |
+| P1      | mediumint(9)         | NO   |     | NULL    |       |
+| P2      | mediumint(9)         | NO   |     | NULL    |       |
+| D1L     | mediumint(9)         | NO   |     | NULL    |       |
+| D1R     | mediumint(9)         | NO   |     | NULL    |       |
+| D2L     | mediumint(9)         | NO   |     | NULL    |       |
+| D2R     | mediumint(9)         | NO   |     | NULL    |       |
+| D3L     | mediumint(9)         | NO   |     | NULL    |       |
+| D3R     | mediumint(9)         | NO   |     | NULL    |       |
++---------+----------------------+------+-----+---------+-------+
+Occupancy.D1
+Occupancy.D2
+Occupancy.D3
+
+
+
+select * from run_015789_R008.kDimuon kDimuon JOIN run_015789_R007.Spill Spill
+ON kDimuon.spillID = Spill.spillID
+limit 10;
+
+SELECT kDimuon.dimuonID, kDimuon.eventID, kDimuon.mass, kDimuon.xF, kDimuon.xB, kDimuon.xT, kDimuon.chisq_dimuon,
+pTrack.trackID AS ptrackID, pTrack.charge AS pcharge, pTrack.numHits AS pnumHits, pTrack.chisq AS pchisq, pTrack.chisq_target AS pchisq_target, pTrack.chisq_dump AS pchisq_dump, pTrack.chisq_upstream AS pchisq_upstream,
+nTrack.trackID AS ntrackID, nTrack.charge AS ncharge, nTrack.numHits AS nnumHits, nTrack.chisq AS nchisq, nTrack.chisq_target AS nchisq_target, nTrack.chisq_dump AS nchisq_dump, nTrack.chisq_upstream AS nchisq_upstream,
+Spill.spillID, Spill.targetPos, Spill.dataQuality,
+Event.NIM1, Event.NIM3, Event.MATRIX1, Event.MATRIX2, Event.MATRIX3,
+Occupancy.D1, Occupancy.D2, Occupancy.D3
+FROM run_015789_R008.kDimuon kDimuon
+JOIN run_015789_R008.kTrack pTrack ON kDimuon.posTrackID = pTrack.trackID
+JOIN run_015789_R008.kTrack nTrack ON kDimuon.negTrackID = nTrack.trackID
+JOIN run_015789_R007.Spill Spill ON kDimuon.spillID = Spill.spillID
+JOIN run_015789_R007.Event Event ON kDimuon.eventID = Event.eventID
+JOIN run_015789_R007.Occupancy Occupancy ON kDimuon.eventID = Occupancy.eventID
+limit 10;
+
+
