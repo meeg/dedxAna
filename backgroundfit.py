@@ -26,7 +26,7 @@ maxIntensity = hnorm.GetXaxis().GetBinUpEdge(nbinsIntensity)
 events = infile.Get("save")
 #events.Draw("mass:D1+D2+D3>>h1({0},{1},{2},100,0,10)".format(nbinsIntensity,minIntensity,maxIntensity),"targetPos==6 && abs(xF-0.7)<0.02","colz")
 #events.Draw("mass:RF00>>h1({0},{1},{2},100,0,10)".format(nbinsIntensity,minIntensity,maxIntensity),"targetPos==6 && abs(xF-0.7)<0.02","colz")
-events.Draw("mass:RF00>>h1({0},{1},{2},200,0,10)".format(nbinsIntensity,minIntensity,maxIntensity),"targetPos==6 && dataQuality==0 && xF>0.67 && xF<0.9","colz")
+events.Draw("mass:RF00>>h1({0},{1},{2},80,0,8)".format(nbinsIntensity,minIntensity,maxIntensity),"targetPos==6 && dataQuality==0 && xF>0.67 && xF<0.9","colz")
 hist = gDirectory.Get("h1")
 c.Print(outfilename+".pdf");
 
@@ -103,9 +103,9 @@ for i in range(0,5):
     #graph=TGraph(len(qieArr),qieArr,pArrs[i])
     parFuncs.append(TF1("parFunc"+str(i),"pol3"))
     graph=TGraphErrors(len(qieArr),qieArr,pArrs[i],zeroArr,pErrArrs[i])
-    graph.Draw("A*")
     graph.Fit(parFuncs[i])
-    c.Print(outfilename+".pdf");
+    #graph.Draw("A*")
+    #c.Print(outfilename+".pdf");
     parSplines.append(TSpline3("fitSpline"+str(i),graph))
     #parSplines[i].Draw()
     #c.Print(outfilename+".pdf");
@@ -113,6 +113,7 @@ for i in range(0,5):
 
 
 histNormed = hist.Clone("hEventsNormalized")
+hnorm2d = hist.Clone("hnorm2d")
 #histNormed.Reset()
 #histNormed = TH1()
 #hist.Copy(histNormed)
@@ -156,25 +157,34 @@ for ix in range(1,nbinsX+1):
     inveff /= (1+heff.GetBinContent(ix))
 
 
-    print ix, eff, weightedeff, 1.0/(inveff+0.0001), integralRealEff/integralFullEff, profiled1.GetBinContent(ix)
+    #print ix, eff, weightedeff, 1.0/(inveff+0.0001), integralRealEff/integralFullEff, profiled1.GetBinContent(ix)
     #eff = 0.9876 - 0.002129*hist.GetXaxis().GetBinCenter(ix)
-    if eff<0:
-        eff = 0
+    #if eff<0:
+        #eff = 0
     for iy in range(1,nbinsY+1):
         #histNormed.SetBinContent(ix, iy, hist.GetBinContent(ix,iy)/(1.0+hnorm.GetBinContent(ix)*eff))
         #histNormed.SetBinContent(ix, iy, hist.GetBinContent(ix,iy)*inveff/(1.0+hnorm.GetBinContent(ix)))
-        histNormed.SetBinContent(ix, iy, hist.GetBinContent(ix,iy)*(integralFullEff/integralRealEff)/(1.0+hnorm.GetBinContent(ix)))
+        #histNormed.SetBinContent(ix, iy, hist.GetBinContent(ix,iy)*(integralFullEff/integralRealEff)/(1.0+hnorm.GetBinContent(ix)))
+        histNormed.SetBinContent(ix,iy,0.0)
+        for i in range(0,int(hist.GetBinContent(ix,iy))):
+            #histNormed.Fill(hist.GetXaxis().GetBinCenter(ix), hist.GetYaxis().GetBinCenter(iy), (integralFullEff/integralRealEff)/(1.0+hnorm.GetBinContent(ix)))
+            histNormed.Fill(hist.GetXaxis().GetBinCenter(ix), hist.GetYaxis().GetBinCenter(iy), (integralFullEff/integralRealEff))
         #print ix,iy,hist.GetBinContent(ix,iy)*(integralFullEff/integralRealEff)/(1.0+hnorm.GetBinContent(ix))
         #histNormed.Fill(hist.GetXaxis().GetBinCenter(ix), hist.GetYaxis().GetBinCenter(iy), hist.GetBinContent(ix,iy)/(1.0+hnorm.GetBinContent(ix)*eff))
+        hnorm2d.SetBinContent(ix,iy,hnorm.GetBinContent(ix))
+        hnorm2d.SetBinError(ix,iy,hnorm.GetBinError(ix))
 #
+histNormed.Divide(hnorm2d)
 #hnorm.SetTitle("normalization;D1+D2+D3;QIE integral [arb. units]")
 #outfile.Add(histNormed)
 graph=TGraph(len(qieArr2),qieArr2,effArr)
+graph.SetTitle("efficiency vs. intensity;RF00;efficiency")
 graph.Draw("A*")
 c.Print(outfilename+".pdf");
 
-histd1FullEff.Draw("colz")
-c.Print(outfilename+".pdf");
+#histd1FullEff.Draw("colz")
+#c.Print(outfilename+".pdf");
+histNormed.SetTitle("Normalized data;RF00;mass [GeV]")
 histNormed.Draw("colz")
 c.Print(outfilename+".pdf");
 
@@ -183,26 +193,40 @@ c.Print(outfilename+".pdf");
 #outfile.Close()
 #sys.exit(0)
 
+fitfunc = TF1("f","pol1")
+fitfunc.SetRange(0,1e4)
 massArr = array.array('d')
+zeroArr = array.array('d')
 p0Arr = array.array('d')
 p1Arr = array.array('d')
+p0ErrArr = array.array('d')
+p1ErrArr = array.array('d')
 for iy in range(1,nbinsY+1):
-    proj = histNormed.ProjectionX("test",iy,iy)
-    print proj.Integral()
+    proj = histNormed.ProjectionX("test"+str(iy),iy,iy)
+    proj.SetTitle("normalized dimuons vs. intensity, mass [{0}, {1}];RF00;arbitrary units".format(histNormed.GetYaxis().GetBinLowEdge(iy),histNormed.GetYaxis().GetBinUpEdge(iy)))
+    #print proj.Integral()
     #if proj.Integral()>0:
-    s = proj.Fit("pol1","QS","",0,1000)
+    s = proj.Fit(fitfunc,"QS","",0,1000)
     if s.Get() and s.Get().IsValid():
-        #c.Print(outfilename+".pdf")
+        c.Print(outfilename+".pdf")
         #print histNormed.GetYaxis().GetBinCenter(iy),s.Parameter(0),s.Parameter(1)
         massArr.append(histNormed.GetYaxis().GetBinCenter(iy))
+        zeroArr.append(0)
         p0Arr.append(s.Parameter(0))
+        p0ErrArr.append(s.ParError(0))
         p1Arr.append(s.Parameter(1)*500)
+        p1ErrArr.append(s.ParError(1)*500)
+        #proj.Divide(fitfunc)
+        #proj.Draw()
+        #c.Print(outfilename+".pdf")
 
-graph=TGraph(len(massArr),massArr,p0Arr)
+graph=TGraphErrors(len(massArr),massArr,p0Arr,zeroArr,p0ErrArr)
+graph.SetTitle("Signal vs. mass, RF00=[0,1000];mass [GeV];arbitrary units")
 graph.Draw("A*")
 c.Print(outfilename+".pdf");
 
-graph2=TGraph(len(massArr),massArr,p1Arr)
+graph2=TGraphErrors(len(massArr),massArr,p1Arr,zeroArr,p1ErrArr)
+graph2.SetTitle("Background vs. mass, RF00=[0,1000];mass [GeV];arbitrary units")
 graph2.SetMarkerColor(2)
 graph2.Draw("*")
 c.Print(outfilename+".pdf");
