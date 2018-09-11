@@ -24,15 +24,6 @@ using namespace std;
 int main(int argc,char** argv)
 {
     vector <pair<string,string> > intVars;
-    intVars.push_back(make_pair("kDimuon.dimuonID","dimuonID"));
-    intVars.push_back(make_pair("kDimuon.runID","runID"));
-    intVars.push_back(make_pair("kDimuon.eventID","eventID"));
-    intVars.push_back(make_pair("pTrack.trackID","ptrackID"));
-    intVars.push_back(make_pair("pTrack.charge","pcharge"));
-    intVars.push_back(make_pair("pTrack.numHits","pnumHits"));
-    intVars.push_back(make_pair("nTrack.trackID","ntrackID"));
-    intVars.push_back(make_pair("nTrack.charge","ncharge"));
-    intVars.push_back(make_pair("nTrack.numHits","nnumHits"));
     intVars.push_back(make_pair("Spill.spillID","spillID"));
     intVars.push_back(make_pair("Spill.targetPos","targetPos"));
     intVars.push_back(make_pair("Spill.dataQuality","dataQuality"));
@@ -44,23 +35,49 @@ int main(int argc,char** argv)
     intVars.push_back(make_pair("Occupancy.D1","D1"));
     intVars.push_back(make_pair("Occupancy.D2","D2"));
     intVars.push_back(make_pair("Occupancy.D3","D3"));
+    //intVars.push_back(make_pair("QIE.`RF-16`","RFm16"));
+    //intVars.push_back(make_pair("QIE.`RF-15`","RFm15"));
+    //intVars.push_back(make_pair("QIE.`RF-14`","RFm14"));
+    //intVars.push_back(make_pair("QIE.`RF-13`","RFm13"));
+    //intVars.push_back(make_pair("QIE.`RF-12`","RFm12"));
+    //intVars.push_back(make_pair("QIE.`RF-11`","RFm11"));
+    //intVars.push_back(make_pair("QIE.`RF-10`","RFm10"));
+    intVars.push_back(make_pair("QIE.`RF-09`","RFm09"));
+    intVars.push_back(make_pair("QIE.`RF-08`","RFm08"));
+    intVars.push_back(make_pair("QIE.`RF-07`","RFm07"));
+    intVars.push_back(make_pair("QIE.`RF-06`","RFm06"));
+    intVars.push_back(make_pair("QIE.`RF-05`","RFm05"));
+    intVars.push_back(make_pair("QIE.`RF-04`","RFm04"));
+    intVars.push_back(make_pair("QIE.`RF-03`","RFm03"));
+    intVars.push_back(make_pair("QIE.`RF-02`","RFm02"));
+    intVars.push_back(make_pair("QIE.`RF-01`","RFm01"));
     intVars.push_back(make_pair("QIE.`RF+00`","RF00"));
+    intVars.push_back(make_pair("QIE.`RF+01`","RFp01"));
+    intVars.push_back(make_pair("QIE.`RF+02`","RFp02"));
+    intVars.push_back(make_pair("QIE.`RF+03`","RFp03"));
+    intVars.push_back(make_pair("QIE.`RF+04`","RFp04"));
+    intVars.push_back(make_pair("QIE.`RF+05`","RFp05"));
+    intVars.push_back(make_pair("QIE.`RF+06`","RFp06"));
+    intVars.push_back(make_pair("QIE.`RF+07`","RFp07"));
+    intVars.push_back(make_pair("QIE.`RF+08`","RFp08"));
+    intVars.push_back(make_pair("QIE.`RF+09`","RFp09"));
+    //intVars.push_back(make_pair("QIE.`RF+10`","RFp10"));
+    //intVars.push_back(make_pair("QIE.`RF+11`","RFp11"));
+    //intVars.push_back(make_pair("QIE.`RF+12`","RFp12"));
+    //intVars.push_back(make_pair("QIE.`RF+13`","RFp13"));
+    //intVars.push_back(make_pair("QIE.`RF+14`","RFp14"));
+    //intVars.push_back(make_pair("QIE.`RF+15`","RFp15"));
+    //intVars.push_back(make_pair("QIE.`RF+16`","RFp16"));
+    //intVars.push_back(make_pair("QIE.sum_0","sum_0"));//empty
+    //intVars.push_back(make_pair("QIE.sum_1","sum_1"));//empty
+    //intVars.push_back(make_pair("QIE.sum_2","sum_2"));//empty
+    //intVars.push_back(make_pair("QIE.sum_3","sum_3"));//empty
     //intVars.push_back(make_pair("",""));
 
     vector <pair<string,string> > doubleVars;
-    doubleVars.push_back(make_pair("kDimuon.mass","mass"));
-    doubleVars.push_back(make_pair("kDimuon.xF","xF"));
-    doubleVars.push_back(make_pair("kDimuon.xB","xB"));
-    doubleVars.push_back(make_pair("kDimuon.xT","xT"));
-    doubleVars.push_back(make_pair("kDimuon.chisq_dimuon","chisq_dimuon"));
-    doubleVars.push_back(make_pair("pTrack.chisq","pchisq"));
-    doubleVars.push_back(make_pair("pTrack.chisq_target","pchisq_target"));
-    doubleVars.push_back(make_pair("pTrack.chisq_dump","pchisq_dump"));
-    doubleVars.push_back(make_pair("pTrack.chisq_upstream","pchisq_upstream"));
-    doubleVars.push_back(make_pair("nTrack.chisq","nchisq"));
-    doubleVars.push_back(make_pair("nTrack.chisq_target","nchisq_target"));
-    doubleVars.push_back(make_pair("nTrack.chisq_dump","nchisq_dump"));
-    doubleVars.push_back(make_pair("nTrack.chisq_upstream","nchisq_upstream"));
+    doubleVars.push_back(make_pair("QIE.Intensity","Intensity"));
+    doubleVars.push_back(make_pair("QIE.PotPerQie","PotPerQie"));
+    doubleVars.push_back(make_pair("QIE.Intensity_p","Intensity_p"));
     //doubleVars.push_back(make_pair("",""));
 
     /*
@@ -110,7 +127,7 @@ int main(int argc,char** argv)
     int* intVarVals = new int[intVars.size()];
     for (int i=0;i<intVars.size();i++) {
         querystring += intVars[i].first + " AS " + intVars[i].second;
-        querystring+= ", ";
+        querystring+= ", ";//no comma after last var
         save->Branch(intVars[i].second.c_str(),&(intVarVals[i]),(intVars[i].second+"/I").c_str());
     }
 
@@ -121,15 +138,12 @@ int main(int argc,char** argv)
         save->Branch(doubleVars[i].second.c_str(),&(doubleVarVals[i]),(doubleVars[i].second+"/D").c_str());
     }
 
-    querystring += " FROM run_RUNNUM_R008.kDimuon kDimuon";
-    querystring += " JOIN run_RUNNUM_R008.kTrack pTrack ON kDimuon.posTrackID = pTrack.trackID";
-    querystring += " JOIN run_RUNNUM_R008.kTrack nTrack ON kDimuon.negTrackID = nTrack.trackID";
-    querystring += " JOIN run_RUNNUM_R007.Spill Spill ON kDimuon.spillID = Spill.spillID";
-    querystring += " JOIN run_RUNNUM_R007.Event Event ON kDimuon.eventID = Event.eventID";
-    querystring += " JOIN run_RUNNUM_R007.Occupancy Occupancy ON kDimuon.eventID = Occupancy.eventID";
+    querystring += " FROM run_RUNNUM_R007.Event Event";
+    querystring += " JOIN run_RUNNUM_R007.Occupancy Occupancy ON Event.eventID = Occupancy.eventID";
+    querystring += " JOIN run_RUNNUM_R007.Spill Spill ON Event.spillID = Spill.spillID";
     querystring += " JOIN run_RUNNUM_R007.QIE QIE ON Event.eventID = QIE.eventID";
 
-    querystring += " WHERE chisq_dimuon<25 AND pTrack.chisq_target<20 AND nTrack.chisq_target<20";
+    //querystring += " WHERE chisq_dimuon<25 AND pTrack.chisq_target<20 AND nTrack.chisq_target<20";
     //printf("%s \n",querystring.c_str());
 
 
@@ -153,8 +167,8 @@ int main(int argc,char** argv)
             while (res->next()) {
                 for (int i=0;i<intVars.size();i++)
                     intVarVals[i] = res->getInt(intVars[i].second);
-                for (int i=0;i<doubleVars.size();i++)
-                    doubleVarVals[i] = res->getDouble(doubleVars[i].second);
+                //for (int i=0;i<doubleVars.size();i++)
+                    //doubleVarVals[i] = res->getDouble(doubleVars[i].second);
                 save->Fill();
             }
             } catch (sql::SQLException &e) {

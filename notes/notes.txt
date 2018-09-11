@@ -211,6 +211,59 @@ Occupancy.D1
 Occupancy.D2
 Occupancy.D3
 
+mysql> desc QIE;
++--------------+----------------------+------+-----+---------+-------+
+| Field        | Type                 | Null | Key | Default | Extra |
++--------------+----------------------+------+-----+---------+-------+
+| runID        | smallint(5) unsigned | NO   |     | NULL    |       |
+| spillID      | int(8) unsigned      | NO   |     | NULL    |       |
+| eventID      | int(10) unsigned     | NO   | MUL | NULL    |       |
+| sum_0        | int(10) unsigned     | NO   |     | NULL    |       |
+| sum_1        | int(10) unsigned     | NO   |     | NULL    |       |
+| sum_2        | int(10) unsigned     | NO   |     | NULL    |       |
+| sum_3        | int(10) unsigned     | NO   |     | NULL    |       |
+| triggerCount | int(11)              | NO   |     | NULL    |       |
+| turnOnset    | int(11)              | NO   |     | NULL    |       |
+| rfOnset      | mediumint(9)         | NO   |     | NULL    |       |
+| Intensity    | double               | YES  |     | NULL    |       |
+| PotPerQie    | double               | YES  |     | NULL    |       |
+| Intensity_p  | double               | YES  |     | NULL    |       |
+| RF-16        | mediumint(9)         | NO   |     | NULL    |       |
+| RF-15        | mediumint(9)         | NO   |     | NULL    |       |
+| RF-14        | mediumint(9)         | NO   |     | NULL    |       |
+| RF-13        | mediumint(9)         | NO   |     | NULL    |       |
+| RF-12        | mediumint(9)         | NO   |     | NULL    |       |
+| RF-11        | mediumint(9)         | NO   |     | NULL    |       |
+| RF-10        | mediumint(9)         | NO   |     | NULL    |       |
+| RF-09        | mediumint(9)         | NO   |     | NULL    |       |
+| RF-08        | mediumint(9)         | NO   |     | NULL    |       |
+| RF-07        | mediumint(9)         | NO   |     | NULL    |       |
+| RF-06        | mediumint(9)         | NO   |     | NULL    |       |
+| RF-05        | mediumint(9)         | NO   |     | NULL    |       |
+| RF-04        | mediumint(9)         | NO   |     | NULL    |       |
+| RF-03        | mediumint(9)         | NO   |     | NULL    |       |
+| RF-02        | mediumint(9)         | NO   |     | NULL    |       |
+| RF-01        | mediumint(9)         | NO   |     | NULL    |       |
+| RF+00        | mediumint(9)         | NO   |     | NULL    |       |
+| RF+01        | mediumint(9)         | NO   |     | NULL    |       |
+| RF+02        | mediumint(9)         | NO   |     | NULL    |       |
+| RF+03        | mediumint(9)         | NO   |     | NULL    |       |
+| RF+04        | mediumint(9)         | NO   |     | NULL    |       |
+| RF+05        | mediumint(9)         | NO   |     | NULL    |       |
+| RF+06        | mediumint(9)         | NO   |     | NULL    |       |
+| RF+07        | mediumint(9)         | NO   |     | NULL    |       |
+| RF+08        | mediumint(9)         | NO   |     | NULL    |       |
+| RF+09        | mediumint(9)         | NO   |     | NULL    |       |
+| RF+10        | mediumint(9)         | NO   |     | NULL    |       |
+| RF+11        | mediumint(9)         | NO   |     | NULL    |       |
+| RF+12        | mediumint(9)         | NO   |     | NULL    |       |
+| RF+13        | mediumint(9)         | NO   |     | NULL    |       |
+| RF+14        | mediumint(9)         | NO   |     | NULL    |       |
+| RF+15        | mediumint(9)         | NO   |     | NULL    |       |
+| RF+16        | mediumint(9)         | NO   |     | NULL    |       |
++--------------+----------------------+------+-----+---------+-------+
+46 rows in set (0.12 sec)
+
 
 
 select * from run_015789_R008.kDimuon kDimuon JOIN run_015789_R007.Spill Spill
