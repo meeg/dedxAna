@@ -4,11 +4,37 @@ import array, math
 from ROOT import gROOT, gStyle, TFile, TTree, TChain, TMVA, TCut, TCanvas, gDirectory, TH1, TGraph, gPad, TF1, THStack, TLegend, TH2D, TH1D, TGraphErrors, TSpline3
 import getopt
 
+def makeqiebins(maxqie=0):
+    stepcounts = [17,20,21,20,20,21,20,20,21,20,20,21,6]
+    binedges = array.array('d')
+    i=-1
+    stepsize = 1
+    for bigstep in range(0,13):
+        for littlestep in range(0,stepcounts[bigstep]):
+            i += stepsize
+            #print i,i-0.5*stepsize
+            binedges.append(i-0.5*stepsize)
+            if (i==540):
+                binedges.append(i+0.5*stepsize)
+                #print i+0.5*stepsize
+                i+=15
+            if (maxqie!=0 and i>maxqie):
+                return binedges
+        binedges.append(i+0.5*stepsize)
+        #print i+0.5*stepsize
+        stepsize *= 2
+        #print "new stepsize"
+    return binedges
+
+
 gROOT.SetBatch(True)
 gStyle.SetOptStat(11)
-#gStyle.SetOptFit(1)
+gStyle.SetOptFit(1)
 infile = TFile("test.root")
-normfile = TFile("normalization.root")
+events = infile.Get("save")
+
+normfile = TFile("test_occupancy3.root")
+normevents = normfile.Get("save")
 
 outfilename="backgroundfit"
 
@@ -18,24 +44,71 @@ c.Print(outfilename+".pdf[")
 c.SetLogz(1)
 outfile = TFile(outfilename+".root","RECREATE")
 
-hnorm = normfile.Get("hnormqie")
+
+#qiecut = " && ".join([i+"<5000" for i in ["RFm{0:02d}".format(j) for j in range(8,0,-1)]+["RF00"]+["RFp{0:02d}".format(j) for j in range(1,9)]])
+qiecut = "RFmax<3800"
+spillcut = "spillID>554011"
+qualitycut = "dataQuality==0"
+targetcut = "targetPos==6"
+xfcut = "xF>0.67 && xF<0.9"
+
+qiebinedges = makeqiebins(6000)
+
+histqiematrix = TH1D("hqiematrix","hqiematrix",len(qiebinedges)-1,qiebinedges)
+normevents.Draw("RF00>>+hqiematrix"," && ".join(["MATRIX1",targetcut,qualitycut,qiecut,spillcut]),"")
+histqiematrix.SetTitle("triggers, MATRIX1 events;QIE RF00")
+c.Print(outfilename+".pdf");
+
+histqie = TH1D("hqie","hqie",len(qiebinedges)-1,qiebinedges)
+normevents.Draw("RF00>>+hqie"," && ".join(["NIM3",targetcut,qualitycut,qiecut,spillcut]),"")
+histqie.SetTitle("triggers, NIM3 events;QIE RF00")
+c.Print(outfilename+".pdf");
+
+histtriggerratio = histqiematrix.Clone("hqiematrix")
+histtriggerratio.Divide(histqie)
+histtriggerratio.SetTitle("trigger ratio, MATRIX1/NIM3;QIE RF00")
+histtriggerratio.Fit("pol2")
+histtriggerratio.Draw()
+c.Print(outfilename+".pdf");
+
+nbinsX = histqie.GetNbinsX()
+hnorm = histqie.Clone("hnormqie")
+for ix in range(1,nbinsX+1):
+    hnorm.SetBinContent(ix,0)
+    for i in range(0,int(histqie.GetBinContent(ix))):
+        hnorm.Fill(histqie.GetXaxis().GetBinCenter(ix), max(0.0,histqie.GetXaxis().GetBinCenter(ix)))
+
+hnorm.Scale(1e-6)
+hnorm.SetTitle("luminosity normalization;RF00;total RF00 [arb. units]")
+hnorm.Draw("")
+c.Print(outfilename+".pdf");
+
+
 
 nbinsIntensity = hnorm.GetNbinsX()
 minIntensity = hnorm.GetXaxis().GetBinLowEdge(1)
 maxIntensity = hnorm.GetXaxis().GetBinUpEdge(nbinsIntensity)
 events = infile.Get("save")
+hist = TH2D("h1","h1",len(qiebinedges)-1,qiebinedges,80,0,8)
 #events.Draw("mass:D1+D2+D3>>h1({0},{1},{2},100,0,10)".format(nbinsIntensity,minIntensity,maxIntensity),"targetPos==6 && abs(xF-0.7)<0.02","colz")
 #events.Draw("mass:RF00>>h1({0},{1},{2},100,0,10)".format(nbinsIntensity,minIntensity,maxIntensity),"targetPos==6 && abs(xF-0.7)<0.02","colz")
-events.Draw("mass:RF00>>h1({0},{1},{2},80,0,8)".format(nbinsIntensity,minIntensity,maxIntensity),"targetPos==6 && dataQuality==0 && xF>0.67 && xF<0.9","colz")
-hist = gDirectory.Get("h1")
+#events.Draw("mass:RF00>>h1({0},{1},{2},80,0,8)".format(nbinsIntensity,minIntensity,maxIntensity),"targetPos==6 && dataQuality==0 && xF>0.67 && xF<0.9","colz")
+events.Draw("mass:RF00>>+h1"," && ".join([targetcut,qualitycut,spillcut,xfcut]),"colz")
+#hist = gDirectory.Get("h1")
+hist.SetTitle("mass vs. RF00")
 c.Print(outfilename+".pdf");
 
 
-
+histd1 = TH2D("hd1","hd1",len(qiebinedges)-1,qiebinedges,100,0,1e3)
 #events.Draw("D1:RF00>>hd1({0},{1},{2},100,0,1e3)".format(nbinsIntensity,minIntensity,maxIntensity),"targetPos==6 && abs(xF-0.7)<0.02","colz")
-events.Draw("D1:RF00>>hd1({0},{1},{2},100,0,1e3)".format(nbinsIntensity,minIntensity,maxIntensity),"targetPos==6 && dataQuality==0 && xF>0.67 && xF<0.9","colz")
-histd1 = gDirectory.Get("hd1")
+#events.Draw("D1:RF00>>hd1({0},{1},{2},100,0,1e3)".format(nbinsIntensity,minIntensity,maxIntensity),"targetPos==6 && dataQuality==0 && xF>0.67 && xF<0.9","colz")
+events.Draw("D1:RF00>>+hd1"," && ".join([targetcut,qualitycut,spillcut,xfcut]),"colz")
+#histd1 = gDirectory.Get("hd1")
+histd1.SetTitle("D1 vs. RF00")
 c.Print(outfilename+".pdf");
+
+#c.Print(outfilename+".pdf]");
+#sys.exit(0)
 
 profiled1 = histd1.ProfileX()
 #profiled1.Draw()
@@ -113,6 +186,7 @@ for i in range(0,5):
 
 
 histNormed = hist.Clone("hEventsNormalized")
+histNormed.SetTitle("Normalized data;RF00;mass [GeV]")
 hnorm2d = hist.Clone("hnorm2d")
 #histNormed.Reset()
 #histNormed = TH1()
@@ -143,8 +217,8 @@ for ix in range(1,nbinsX+1):
             integralFullEff += fitfunc_fullEff.Eval(histd1.GetYaxis().GetBinCenter(iy))
             integralRealEff += fitfunc.Eval(histd1.GetYaxis().GetBinCenter(iy))
             histd1FullEff.SetBinContent(ix,iy,fitfunc_fullEff.Eval(histd1.GetYaxis().GetBinCenter(iy)))
-        qieArr2.append(histd1.GetXaxis().GetBinCenter(ix))
-        effArr.append(integralRealEff/integralFullEff)
+        #qieArr2.append(histd1.GetXaxis().GetBinCenter(ix))
+        #effArr.append(integralRealEff/integralFullEff)
 
     eff = 0.9876 - 0.002129*profiled1.GetBinContent(ix)
     weightedeff = 0
@@ -154,7 +228,13 @@ for ix in range(1,nbinsX+1):
     inveff = 0
     for iy in range(1,histd1.GetNbinsY()):
         inveff += histd1.GetBinContent(ix,iy)/(0.9876 - 0.002129*histd1.GetYaxis().GetBinCenter(iy))
-    inveff /= (1+heff.GetBinContent(ix))
+    #print inveff,heff.GetBinContent(ix)
+    if inveff==0:
+        inveff = 1
+    else:
+        inveff /= (heff.GetBinContent(ix))
+    qieArr2.append(histd1.GetXaxis().GetBinCenter(ix))
+    effArr.append(1.0/inveff)
 
 
     #print ix, eff, weightedeff, 1.0/(inveff+0.0001), integralRealEff/integralFullEff, profiled1.GetBinContent(ix)
@@ -168,7 +248,10 @@ for ix in range(1,nbinsX+1):
         histNormed.SetBinContent(ix,iy,0.0)
         for i in range(0,int(hist.GetBinContent(ix,iy))):
             #histNormed.Fill(hist.GetXaxis().GetBinCenter(ix), hist.GetYaxis().GetBinCenter(iy), (integralFullEff/integralRealEff)/(1.0+hnorm.GetBinContent(ix)))
-            histNormed.Fill(hist.GetXaxis().GetBinCenter(ix), hist.GetYaxis().GetBinCenter(iy), (integralFullEff/integralRealEff))
+            #histNormed.Fill(hist.GetXaxis().GetBinCenter(ix), hist.GetYaxis().GetBinCenter(iy), (integralFullEff/integralRealEff))
+            #histNormed.Fill(hist.GetXaxis().GetBinCenter(ix), hist.GetYaxis().GetBinCenter(iy), (integralFullEff/integralRealEff))
+            histNormed.Fill(hist.GetXaxis().GetBinCenter(ix), hist.GetYaxis().GetBinCenter(iy), inveff)
+            #histNormed.Fill(hist.GetXaxis().GetBinCenter(ix), hist.GetYaxis().GetBinCenter(iy), max(0,1.0-0.35e-3*histd1.GetXaxis().GetBinCenter(ix)))
         #print ix,iy,hist.GetBinContent(ix,iy)*(integralFullEff/integralRealEff)/(1.0+hnorm.GetBinContent(ix))
         #histNormed.Fill(hist.GetXaxis().GetBinCenter(ix), hist.GetYaxis().GetBinCenter(iy), hist.GetBinContent(ix,iy)/(1.0+hnorm.GetBinContent(ix)*eff))
         hnorm2d.SetBinContent(ix,iy,hnorm.GetBinContent(ix))
@@ -177,14 +260,13 @@ for ix in range(1,nbinsX+1):
 histNormed.Divide(hnorm2d)
 #hnorm.SetTitle("normalization;D1+D2+D3;QIE integral [arb. units]")
 #outfile.Add(histNormed)
-graph=TGraph(len(qieArr2),qieArr2,effArr)
-graph.SetTitle("efficiency vs. intensity;RF00;efficiency")
-graph.Draw("A*")
+effgraph=TGraph(len(qieArr2),qieArr2,effArr)
+effgraph.SetTitle("efficiency vs. intensity;RF00;efficiency")
+effgraph.Draw("A*")
 c.Print(outfilename+".pdf");
 
 #histd1FullEff.Draw("colz")
 #c.Print(outfilename+".pdf");
-histNormed.SetTitle("Normalized data;RF00;mass [GeV]")
 histNormed.Draw("colz")
 c.Print(outfilename+".pdf");
 
@@ -201,13 +283,19 @@ p0Arr = array.array('d')
 p1Arr = array.array('d')
 p0ErrArr = array.array('d')
 p1ErrArr = array.array('d')
+hEffCorr = hist.Clone("hEffCorr")
 for iy in range(1,nbinsY+1):
     proj = histNormed.ProjectionX("test"+str(iy),iy,iy)
     proj.SetTitle("normalized dimuons vs. intensity, mass [{0}, {1}];RF00;arbitrary units".format(histNormed.GetYaxis().GetBinLowEdge(iy),histNormed.GetYaxis().GetBinUpEdge(iy)))
+    maxval = proj.GetMaximum()
+    #proj.GetYaxis().SetRangeUser(-0.1*maxval,1.1*maxval)
+    proj.GetXaxis().SetRangeUser(50,3000)
     #print proj.Integral()
     #if proj.Integral()>0:
-    s = proj.Fit(fitfunc,"QS","",0,1000)
-    if s.Get() and s.Get().IsValid():
+    for ix in range(1,nbinsX+1):
+        hEffCorr.SetBinContent(ix,iy,0.0)
+    s = proj.Fit(fitfunc,"QSWL","",100,1000)
+    if s.Get() and s.Get().IsValid() and s.Get().Ndf()>0:
         c.Print(outfilename+".pdf")
         #print histNormed.GetYaxis().GetBinCenter(iy),s.Parameter(0),s.Parameter(1)
         massArr.append(histNormed.GetYaxis().GetBinCenter(iy))
@@ -216,7 +304,12 @@ for iy in range(1,nbinsY+1):
         p0ErrArr.append(s.ParError(0))
         p1Arr.append(s.Parameter(1)*500)
         p1ErrArr.append(s.ParError(1)*500)
-        #proj.Divide(fitfunc)
+        if (histNormed.GetYaxis().GetBinCenter(iy)==3.05):
+            s.Print("V")
+        proj.Divide(fitfunc)
+        for ix in range(1,nbinsX+1):
+            hEffCorr.SetBinContent(ix,iy,proj.GetBinContent(ix))
+            hEffCorr.SetBinError(ix,iy,proj.GetBinError(ix))
         #proj.Draw()
         #c.Print(outfilename+".pdf")
 
@@ -231,6 +324,42 @@ graph2.SetMarkerColor(2)
 graph2.Draw("*")
 c.Print(outfilename+".pdf");
 graph2.Draw("A*")
+c.Print(outfilename+".pdf");
+
+
+c.SetLogz(0)
+hEffCorr.GetZaxis().SetRangeUser(0,10)
+hEffCorr.GetYaxis().SetRangeUser(1.0,5.5)
+hEffCorr.SetTitle("deviation from linear fit;RF00;mass [GeV]")
+hEffCorr.Draw("colz")
+c.Print(outfilename+".pdf");
+qieArr = array.array('d')
+zeroArr = array.array('d')
+p0Arr = array.array('d')
+p0ErrArr = array.array('d')
+for ix in range(1,nbinsX+1):
+    proj = hEffCorr.ProjectionY("effCorr"+str(ix),ix,ix)
+    proj.SetTitle("efficiency correction, RF00 [{0}, {1}];mass;arbitrary units".format(hEffCorr.GetXaxis().GetBinLowEdge(ix),hEffCorr.GetXaxis().GetBinUpEdge(ix)))
+    proj.GetYaxis().SetRangeUser(-0.1,1.5)
+    s = proj.Fit("pol0","QS","",1.0,5.5)
+    if s.Get() and s.Get().IsValid() and s.Get().Ndf()>0:
+        #c.Print(outfilename+".pdf")
+        qieArr.append(hEffCorr.GetXaxis().GetBinCenter(ix))
+        zeroArr.append(0)
+        p0Arr.append(s.Parameter(0))
+        p0ErrArr.append(s.ParError(0))
+
+graph4=TGraphErrors(len(qieArr),qieArr,p0Arr,zeroArr,p0ErrArr)
+graph4.SetTitle("deviation from linear fit;RF00;data/fit")
+graph4.Fit("pol1","QS","",100,1000)
+#graph4.Fit("pol2","QS","",100,1000)
+#graph4.Fit("pol2","QS","",100,1500)
+graph4.SetMarkerColor(2)
+graph4.Draw("A*X")
+#graph4.GetXaxis().SetRangeUser(50,2000)
+graph4.GetYaxis().SetRangeUser(-0.1,1.5)
+c.Print(outfilename+".pdf");
+effgraph.Draw("*")
 c.Print(outfilename+".pdf");
 
 c.Print(outfilename+".pdf]");

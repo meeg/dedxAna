@@ -8,12 +8,22 @@
 \maketitle
 
 We assume that the number of events seen at a given mass and occupancy is described by 
-(dimuon yield + coincidence rate * occupancy) * luminosity * efficiency
+(dimuon yield + coincidence rate * intensity) * luminosity * efficiency(intensity).
 
-Each bin must be corrected for:
+We use intensity binning (QIE.RF00) as opposed to occupancy binning because the occupancy distribution is skewed high for dimuon events, which may affect the calculation of efficiency.
+Efficiency calculated from QIE is 
+
+This assumes:
+
 \begin{itemize}
 \item Luminosity for this occupancy bin
 \item Efficiency for this occupancy bin
+\end{itemize}
+
+Each bin must be corrected for:
+\begin{itemize}
+\item Luminosity for this intensity bin
+\item Efficiency for this intensity bin
 \end{itemize}
 
 \section{Luminosity correction}
