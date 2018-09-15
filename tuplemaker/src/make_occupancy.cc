@@ -27,6 +27,8 @@ int main(int argc,char** argv)
     intVars.push_back(make_pair("Spill.spillID","spillID"));
     intVars.push_back(make_pair("Spill.targetPos","targetPos"));
     intVars.push_back(make_pair("Spill.dataQuality","dataQuality"));
+    intVars.push_back(make_pair("Event.eventID","eventID"));
+    intVars.push_back(make_pair("Event.runID","runID"));
     intVars.push_back(make_pair("Event.NIM1","NIM1"));
     intVars.push_back(make_pair("Event.NIM3","NIM3"));
     intVars.push_back(make_pair("Event.MATRIX1","MATRIX1"));
@@ -61,6 +63,8 @@ int main(int argc,char** argv)
     intVars.push_back(make_pair("QIE.`RF+07`","RFp07"));
     intVars.push_back(make_pair("QIE.`RF+08`","RFp08"));
     intVars.push_back(make_pair("QIE.`RF+09`","RFp09"));
+    intVars.push_back(make_pair("GREATEST(QIE.`RF-08`,QIE.`RF-07`,QIE.`RF-06`,QIE.`RF-05`,QIE.`RF-04`,QIE.`RF-03`,QIE.`RF-02`,QIE.`RF-01`,QIE.`RF+00`,QIE.`RF+01`,QIE.`RF+02`,QIE.`RF+03`,QIE.`RF+04`,QIE.`RF+05`,QIE.`RF+06`,QIE.`RF+07`,QIE.`RF+08`)","RFmax"));
+    //"QIE.`RF-08`,QIE.`RF-07`,QIE.`RF-06`,QIE.`RF-05`,QIE.`RF-04`,QIE.`RF-03`,QIE.`RF-02`,QIE.`RF-01`,QIE.`RF+00`,QIE.`RF+01`,QIE.`RF+02`,QIE.`RF+03`,QIE.`RF+04`,QIE.`RF+05`,QIE.`RF+06`,QIE.`RF+07`,QIE.`RF+08`"
     //intVars.push_back(make_pair("QIE.`RF+10`","RFp10"));
     //intVars.push_back(make_pair("QIE.`RF+11`","RFp11"));
     //intVars.push_back(make_pair("QIE.`RF+12`","RFp12"));
@@ -74,10 +78,10 @@ int main(int argc,char** argv)
     //intVars.push_back(make_pair("QIE.sum_3","sum_3"));//empty
     //intVars.push_back(make_pair("",""));
 
-    vector <pair<string,string> > doubleVars;
-    doubleVars.push_back(make_pair("QIE.Intensity","Intensity"));
-    doubleVars.push_back(make_pair("QIE.PotPerQie","PotPerQie"));
-    doubleVars.push_back(make_pair("QIE.Intensity_p","Intensity_p"));
+    //vector <pair<string,string> > doubleVars;
+    //doubleVars.push_back(make_pair("QIE.Intensity","Intensity"));
+    //doubleVars.push_back(make_pair("QIE.PotPerQie","PotPerQie"));
+    //doubleVars.push_back(make_pair("QIE.Intensity_p","Intensity_p"));
     //doubleVars.push_back(make_pair("",""));
 
     /*
@@ -127,16 +131,18 @@ int main(int argc,char** argv)
     int* intVarVals = new int[intVars.size()];
     for (int i=0;i<intVars.size();i++) {
         querystring += intVars[i].first + " AS " + intVars[i].second;
-        querystring+= ", ";//no comma after last var
+        if (i<intVars.size()-1) querystring+= ", ";//no comma after last var
         save->Branch(intVars[i].second.c_str(),&(intVarVals[i]),(intVars[i].second+"/I").c_str());
     }
 
+    /*
     double* doubleVarVals = new double[doubleVars.size()];
     for (int i=0;i<doubleVars.size();i++) {
         querystring += doubleVars[i].first + " AS " + doubleVars[i].second;
         if (i<doubleVars.size()-1) querystring+= ", ";//no comma after last var
         save->Branch(doubleVars[i].second.c_str(),&(doubleVarVals[i]),(doubleVars[i].second+"/D").c_str());
     }
+    */
 
     querystring += " FROM run_RUNNUM_R007.Event Event";
     querystring += " JOIN run_RUNNUM_R007.Occupancy Occupancy ON Event.eventID = Occupancy.eventID";
