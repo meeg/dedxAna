@@ -61,35 +61,36 @@ int main(int argc,char** argv)
     doubleVars.push_back(make_pair("nTrack.chisq_target","nchisq_target"));
     doubleVars.push_back(make_pair("nTrack.chisq_dump","nchisq_dump"));
     doubleVars.push_back(make_pair("nTrack.chisq_upstream","nchisq_upstream"));
+    doubleVars.push_back(make_pair("QIE.PotPerQie","PotPerQie"));
     //doubleVars.push_back(make_pair("",""));
 
     /*
-    int c;
-    while ((c = getopt(argc,argv,"h")) !=-1)
-        switch (c)
-        {
-            case 'h':
-                printf("-h: print this help\n");
-                return(0);
-                break;
-            case 'Z':
-                max_vz = atof(optarg);
-                break;
-            case 'c':
-                cut_on_acceptance = true;;
-                break;
-            case '?':
-                printf("Invalid option or missing option argument; -h to list options\n");
-                return(1);
-            default:
-                abort();
-        }
-    if ( argc-optind < 2 )
-    {
-        printf("<input stdhep filename> <output stdhep filename>\n");
-        return 1;
-    }
-    */
+       int c;
+       while ((c = getopt(argc,argv,"h")) !=-1)
+       switch (c)
+       {
+       case 'h':
+       printf("-h: print this help\n");
+       return(0);
+       break;
+       case 'Z':
+       max_vz = atof(optarg);
+       break;
+       case 'c':
+       cut_on_acceptance = true;;
+       break;
+       case '?':
+       printf("Invalid option or missing option argument; -h to list options\n");
+       return(1);
+       default:
+       abort();
+       }
+       if ( argc-optind < 2 )
+       {
+       printf("<input stdhep filename> <output stdhep filename>\n");
+       return 1;
+       }
+       */
 
     const string user = "seaguest";
     const string pass = argv[5];
@@ -147,16 +148,17 @@ int main(int argc,char** argv)
             //printf("%s\n",newquery.c_str());
 
             try {
-            std::auto_ptr< sql::ResultSet > res(stmt->executeQuery(newquery));
-            //std::auto_ptr< sql::ResultSet > res(stmt->executeQuery("SELECT dimuonID FROM run_015789_R008.kDimuon"));
+                con->reconnect();
+                std::auto_ptr< sql::ResultSet > res(stmt->executeQuery(newquery));
+                //std::auto_ptr< sql::ResultSet > res(stmt->executeQuery("SELECT dimuonID FROM run_015789_R008.kDimuon"));
 
-            while (res->next()) {
-                for (int i=0;i<intVars.size();i++)
-                    intVarVals[i] = res->getInt(intVars[i].second);
-                for (int i=0;i<doubleVars.size();i++)
-                    doubleVarVals[i] = res->getDouble(doubleVars[i].second);
-                save->Fill();
-            }
+                while (res->next()) {
+                    for (int i=0;i<intVars.size();i++)
+                        intVarVals[i] = res->getInt(intVars[i].second);
+                    for (int i=0;i<doubleVars.size();i++)
+                        doubleVarVals[i] = res->getDouble(doubleVars[i].second);
+                    save->Fill();
+                }
             } catch (sql::SQLException &e) {
                 printf("SQLException: %s\nquery:\n%s\n",e.what(),newquery.c_str());
             }

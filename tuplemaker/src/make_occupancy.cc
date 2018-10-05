@@ -78,39 +78,39 @@ int main(int argc,char** argv)
     //intVars.push_back(make_pair("QIE.sum_3","sum_3"));//empty
     //intVars.push_back(make_pair("",""));
 
-    //vector <pair<string,string> > doubleVars;
+    vector <pair<string,string> > doubleVars;
     //doubleVars.push_back(make_pair("QIE.Intensity","Intensity"));
-    //doubleVars.push_back(make_pair("QIE.PotPerQie","PotPerQie"));
+    doubleVars.push_back(make_pair("QIE.PotPerQie","PotPerQie"));
     //doubleVars.push_back(make_pair("QIE.Intensity_p","Intensity_p"));
     //doubleVars.push_back(make_pair("",""));
 
     /*
-    int c;
-    while ((c = getopt(argc,argv,"h")) !=-1)
-        switch (c)
-        {
-            case 'h':
-                printf("-h: print this help\n");
-                return(0);
-                break;
-            case 'Z':
-                max_vz = atof(optarg);
-                break;
-            case 'c':
-                cut_on_acceptance = true;;
-                break;
-            case '?':
-                printf("Invalid option or missing option argument; -h to list options\n");
-                return(1);
-            default:
-                abort();
-        }
-    if ( argc-optind < 2 )
-    {
-        printf("<input stdhep filename> <output stdhep filename>\n");
-        return 1;
-    }
-    */
+       int c;
+       while ((c = getopt(argc,argv,"h")) !=-1)
+       switch (c)
+       {
+       case 'h':
+       printf("-h: print this help\n");
+       return(0);
+       break;
+       case 'Z':
+       max_vz = atof(optarg);
+       break;
+       case 'c':
+       cut_on_acceptance = true;;
+       break;
+       case '?':
+       printf("Invalid option or missing option argument; -h to list options\n");
+       return(1);
+       default:
+       abort();
+       }
+       if ( argc-optind < 2 )
+       {
+       printf("<input stdhep filename> <output stdhep filename>\n");
+       return 1;
+       }
+       */
 
     const string user = "seaguest";
     const string pass = argv[5];
@@ -131,25 +131,24 @@ int main(int argc,char** argv)
     int* intVarVals = new int[intVars.size()];
     for (int i=0;i<intVars.size();i++) {
         querystring += intVars[i].first + " AS " + intVars[i].second;
-        if (i<intVars.size()-1) querystring+= ", ";//no comma after last var
+        //if (i<intVars.size()-1)
+        querystring+= ", ";//no comma after last var
         save->Branch(intVars[i].second.c_str(),&(intVarVals[i]),(intVars[i].second+"/I").c_str());
     }
 
-    /*
     double* doubleVarVals = new double[doubleVars.size()];
     for (int i=0;i<doubleVars.size();i++) {
         querystring += doubleVars[i].first + " AS " + doubleVars[i].second;
         if (i<doubleVars.size()-1) querystring+= ", ";//no comma after last var
         save->Branch(doubleVars[i].second.c_str(),&(doubleVarVals[i]),(doubleVars[i].second+"/D").c_str());
     }
-    */
 
     querystring += " FROM run_RUNNUM_R007.Event Event";
     querystring += " JOIN run_RUNNUM_R007.Occupancy Occupancy ON Event.eventID = Occupancy.eventID";
     querystring += " JOIN run_RUNNUM_R007.Spill Spill ON Event.spillID = Spill.spillID";
     querystring += " JOIN run_RUNNUM_R007.QIE QIE ON Event.eventID = QIE.eventID";
 
-    //querystring += " WHERE chisq_dimuon<25 AND pTrack.chisq_target<20 AND nTrack.chisq_target<20";
+    querystring += " WHERE Event.eventID%100=0 OR Event.NIM3"; //prescale non-NIM3 events by 100
     //printf("%s \n",querystring.c_str());
 
 
@@ -167,16 +166,17 @@ int main(int argc,char** argv)
             //printf("%s\n",newquery.c_str());
 
             try {
-            std::auto_ptr< sql::ResultSet > res(stmt->executeQuery(newquery));
-            //std::auto_ptr< sql::ResultSet > res(stmt->executeQuery("SELECT dimuonID FROM run_015789_R008.kDimuon"));
+                con->reconnect();
+                std::auto_ptr< sql::ResultSet > res(stmt->executeQuery(newquery));
+                //std::auto_ptr< sql::ResultSet > res(stmt->executeQuery("SELECT dimuonID FROM run_015789_R008.kDimuon"));
 
-            while (res->next()) {
-                for (int i=0;i<intVars.size();i++)
-                    intVarVals[i] = res->getInt(intVars[i].second);
-                //for (int i=0;i<doubleVars.size();i++)
-                    //doubleVarVals[i] = res->getDouble(doubleVars[i].second);
-                save->Fill();
-            }
+                while (res->next()) {
+                    for (int i=0;i<intVars.size();i++)
+                        intVarVals[i] = res->getInt(intVars[i].second);
+                    for (int i=0;i<doubleVars.size();i++)
+                        doubleVarVals[i] = res->getDouble(doubleVars[i].second);
+                    save->Fill();
+                }
             } catch (sql::SQLException &e) {
                 printf("SQLException: %s\nquery:\n%s\n",e.what(),newquery.c_str());
             }
