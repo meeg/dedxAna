@@ -53,8 +53,9 @@ outfile = TFile(outfilename+".root","RECREATE")
 
 
 #qiecut = " && ".join([i+"<5000" for i in ["RFm{0:02d}".format(j) for j in range(8,0,-1)]+["RF00"]+["RFp{0:02d}".format(j) for j in range(1,9)]])
-qiecut = "RFmax<3800"
-spillcut = "runID>13861 && runID<14388"
+qiecut = "RFmax<Inh_thres"
+#spillcut = "runID>13861 && runID<14388"
+spillcut = "runID>0"
 qualitycut = "dataQuality==0"
 targetcut = "targetPos==6"
 xfcut = "xF>0.67 && xF<0.9"
@@ -77,7 +78,7 @@ c.Print(outfilename+".pdf");
 histtriggerratio = histqiematrix.Clone("hqiematrix")
 histtriggerratio.Divide(histqie)
 histtriggerratio.SetTitle("trigger ratio, MATRIX1/NIM3;RF00*PotPerQie")
-histtriggerratio.Fit("pol2")
+histtriggerratio.Fit("pol2","","",0,6e4)
 histtriggerratio.Draw()
 c.Print(outfilename+".pdf");
 
@@ -286,7 +287,7 @@ histNormed.Draw("colz")
 c.Print(outfilename+".pdf");
 
 minfitrange = 2000
-maxfitrange = 40000
+maxfitrange = 80000
 
 fitfunc = TF1("f","pol1")
 fitfunc.SetRange(0,1e5)
@@ -341,7 +342,7 @@ c.Print(outfilename+".pdf");
 
 
 c.SetLogz(0)
-hEffCorr.GetZaxis().SetRangeUser(0,10)
+hEffCorr.GetZaxis().SetRangeUser(0,3)
 hEffCorr.GetYaxis().SetRangeUser(1.0,5.5)
 hEffCorr.SetTitle("deviation from linear fit;RF00;mass [GeV]")
 hEffCorr.Draw("colz")
