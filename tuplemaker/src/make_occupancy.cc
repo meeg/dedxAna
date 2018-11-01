@@ -37,6 +37,7 @@ int main(int argc,char** argv)
     intVars.push_back(make_pair("Occupancy.D1","D1"));
     intVars.push_back(make_pair("Occupancy.D2","D2"));
     intVars.push_back(make_pair("Occupancy.D3","D3"));
+    intVars.push_back(make_pair("BeamDAQ.Inh_thres","Inh_thres"));
     //intVars.push_back(make_pair("QIE.`RF-16`","RFm16"));
     //intVars.push_back(make_pair("QIE.`RF-15`","RFm15"));
     //intVars.push_back(make_pair("QIE.`RF-14`","RFm14"));
@@ -146,6 +147,7 @@ int main(int argc,char** argv)
     querystring += " FROM run_RUNNUM_R007.Event Event";
     querystring += " JOIN run_RUNNUM_R007.Occupancy Occupancy ON Event.eventID = Occupancy.eventID";
     querystring += " JOIN run_RUNNUM_R007.Spill Spill ON Event.spillID = Spill.spillID";
+    querystring += " JOIN run_RUNNUM_R007.BeamDAQ BeamDAQ ON Event.spillID = BeamDAQ.spillID";
     querystring += " JOIN run_RUNNUM_R007.QIE QIE ON Event.eventID = QIE.eventID";
 
     querystring += " WHERE Event.eventID%100=0 OR Event.NIM3"; //prescale non-NIM3 events by 100

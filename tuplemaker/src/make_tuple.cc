@@ -20,6 +20,17 @@
 
 using namespace std;
 
+void add_var(vector <pair<string,string> > &vars, string table, string column)
+{
+    vars.push_back(make_pair(table+"."+column, column));
+}
+
+void add_trackvar(vector <pair<string,string> > &vars, string column)
+{
+    vars.push_back(make_pair("pTrack."+column, "p"+column));
+    vars.push_back(make_pair("nTrack."+column, "n"+column));
+}
+
 // tsv, database, port, roadset, password, output filename
 int main(int argc,char** argv)
 {
@@ -27,12 +38,11 @@ int main(int argc,char** argv)
     intVars.push_back(make_pair("kDimuon.dimuonID","dimuonID"));
     intVars.push_back(make_pair("kDimuon.runID","runID"));
     intVars.push_back(make_pair("kDimuon.eventID","eventID"));
-    intVars.push_back(make_pair("pTrack.trackID","ptrackID"));
-    intVars.push_back(make_pair("pTrack.charge","pcharge"));
-    intVars.push_back(make_pair("pTrack.numHits","pnumHits"));
-    intVars.push_back(make_pair("nTrack.trackID","ntrackID"));
-    intVars.push_back(make_pair("nTrack.charge","ncharge"));
-    intVars.push_back(make_pair("nTrack.numHits","nnumHits"));
+
+    add_trackvar(intVars,"trackID");
+    add_trackvar(intVars,"charge");
+    add_trackvar(intVars,"numHits");
+    add_trackvar(intVars,"roadID");
     intVars.push_back(make_pair("Spill.spillID","spillID"));
     intVars.push_back(make_pair("Spill.targetPos","targetPos"));
     intVars.push_back(make_pair("Spill.dataQuality","dataQuality"));
@@ -44,6 +54,7 @@ int main(int argc,char** argv)
     intVars.push_back(make_pair("Occupancy.D1","D1"));
     intVars.push_back(make_pair("Occupancy.D2","D2"));
     intVars.push_back(make_pair("Occupancy.D3","D3"));
+    intVars.push_back(make_pair("BeamDAQ.Inh_thres","Inh_thres"));
     intVars.push_back(make_pair("QIE.`RF+00`","RF00"));
     //intVars.push_back(make_pair("",""));
 
@@ -52,15 +63,36 @@ int main(int argc,char** argv)
     doubleVars.push_back(make_pair("kDimuon.xF","xF"));
     doubleVars.push_back(make_pair("kDimuon.xB","xB"));
     doubleVars.push_back(make_pair("kDimuon.xT","xT"));
+    doubleVars.push_back(make_pair("kDimuon.costh","costh"));
+    doubleVars.push_back(make_pair("kDimuon.dx","dx"));
+    doubleVars.push_back(make_pair("kDimuon.dy","dy"));
+    doubleVars.push_back(make_pair("kDimuon.dz","dz"));
+    doubleVars.push_back(make_pair("kDimuon.dpx","dpx"));
+    doubleVars.push_back(make_pair("kDimuon.dpy","dpy"));
+    doubleVars.push_back(make_pair("kDimuon.dpz","dpz"));
+    doubleVars.push_back(make_pair("kDimuon.trackSeparation","trackSeparation"));
     doubleVars.push_back(make_pair("kDimuon.chisq_dimuon","chisq_dimuon"));
-    doubleVars.push_back(make_pair("pTrack.chisq","pchisq"));
-    doubleVars.push_back(make_pair("pTrack.chisq_target","pchisq_target"));
-    doubleVars.push_back(make_pair("pTrack.chisq_dump","pchisq_dump"));
-    doubleVars.push_back(make_pair("pTrack.chisq_upstream","pchisq_upstream"));
-    doubleVars.push_back(make_pair("nTrack.chisq","nchisq"));
-    doubleVars.push_back(make_pair("nTrack.chisq_target","nchisq_target"));
-    doubleVars.push_back(make_pair("nTrack.chisq_dump","nchisq_dump"));
-    doubleVars.push_back(make_pair("nTrack.chisq_upstream","nchisq_upstream"));
+
+    add_trackvar(doubleVars,"chisq");
+    add_trackvar(doubleVars,"chisq_target");
+    add_trackvar(doubleVars,"chisq_dump");
+    add_trackvar(doubleVars,"chisq_upstream");
+    add_trackvar(doubleVars,"pz1");
+    add_trackvar(doubleVars,"xT");
+    add_trackvar(doubleVars,"xD");
+    add_trackvar(doubleVars,"yT");
+    add_trackvar(doubleVars,"yD");
+    add_trackvar(doubleVars,"z0");
+    add_trackvar(doubleVars,"y1");
+    add_trackvar(doubleVars,"y3");
+    //doubleVars.push_back(make_pair("pTrack.chisq","pchisq"));
+    //doubleVars.push_back(make_pair("pTrack.chisq_target","pchisq_target"));
+    //doubleVars.push_back(make_pair("pTrack.chisq_dump","pchisq_dump"));
+    //doubleVars.push_back(make_pair("pTrack.chisq_upstream","pchisq_upstream"));
+    //doubleVars.push_back(make_pair("nTrack.chisq","nchisq"));
+    //doubleVars.push_back(make_pair("nTrack.chisq_target","nchisq_target"));
+    //doubleVars.push_back(make_pair("nTrack.chisq_dump","nchisq_dump"));
+    //doubleVars.push_back(make_pair("nTrack.chisq_upstream","nchisq_upstream"));
     doubleVars.push_back(make_pair("QIE.PotPerQie","PotPerQie"));
     //doubleVars.push_back(make_pair("",""));
 
@@ -126,9 +158,10 @@ int main(int argc,char** argv)
     querystring += " JOIN run_RUNNUM_R008.kTrack pTrack ON kDimuon.posTrackID = pTrack.trackID";
     querystring += " JOIN run_RUNNUM_R008.kTrack nTrack ON kDimuon.negTrackID = nTrack.trackID";
     querystring += " JOIN run_RUNNUM_R007.Spill Spill ON kDimuon.spillID = Spill.spillID";
+    querystring += " JOIN run_RUNNUM_R007.BeamDAQ BeamDAQ ON kDimuon.spillID = BeamDAQ.spillID";
     querystring += " JOIN run_RUNNUM_R007.Event Event ON kDimuon.eventID = Event.eventID";
     querystring += " JOIN run_RUNNUM_R007.Occupancy Occupancy ON kDimuon.eventID = Occupancy.eventID";
-    querystring += " JOIN run_RUNNUM_R007.QIE QIE ON Event.eventID = QIE.eventID";
+    querystring += " JOIN run_RUNNUM_R007.QIE QIE ON kDimuon.eventID = QIE.eventID";
 
     querystring += " WHERE chisq_dimuon<25 AND pTrack.chisq_target<20 AND nTrack.chisq_target<20";
     //printf("%s \n",querystring.c_str());

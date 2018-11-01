@@ -265,6 +265,30 @@ mysql> desc QIE;
 46 rows in set (0.12 sec)
 
 
+mysql> desc BeamDAQ;
++------------------------+------------------+------+-----+---------+-------+
+| Field                  | Type             | Null | Key | Default | Extra |
++------------------------+------------------+------+-----+---------+-------+
+| spillID                | int(10) unsigned | NO   |     | NULL    |       |
+| timestamp              | datetime         | NO   |     | NULL    |       |
+| NM3ION                 | float            | NO   |     | NULL    |       |
+| QIEsum                 | float            | NO   |     | NULL    |       |
+| dutyfactor53MHz        | decimal(8,4)     | NO   |     | NULL    |       |
+| inhibit_count          | int(11)          | NO   |     | NULL    |       |
+| inhibit_block_sum      | float            | NO   |     | NULL    |       |
+| trigger_count          | int(11)          | NO   |     | NULL    |       |
+| trigger_sum_no_inhibit | float            | NO   |     | NULL    |       |
+| Inh_output_delay       | int(11)          | NO   |     | NULL    |       |
+| QIE_inh_delay          | int(11)          | NO   |     | NULL    |       |
+| Min_Inh_Width          | int(11)          | NO   |     | NULL    |       |
+| Inh_thres              | int(11)          | NO   |     | NULL    |       |
+| QIE_busy_delay         | int(11)          | NO   |     | NULL    |       |
+| Marker_delay           | int(11)          | NO   |     | NULL    |       |
+| QIE_phase_adjust       | int(11)          | NO   |     | NULL    |       |
++------------------------+------------------+------+-----+---------+-------+
+16 rows in set (0.07 sec)
+
+
 
 select * from run_015789_R008.kDimuon kDimuon JOIN run_015789_R007.Spill Spill
 ON kDimuon.spillID = Spill.spillID
