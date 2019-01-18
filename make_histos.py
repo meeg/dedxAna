@@ -27,55 +27,53 @@ outfile = TFile(outfilename+".root","RECREATE")
 
 qiecut = utils.qiecuts()
 qualitycut = utils.qualitycuts()
-#spillcut = "runID>13861 && runID<14388"
-spillcut = "spillID>0"
-#spillcut = "spillID>610e3"
-targetcut = "targetPos==1" #H2
-#targetcut = "targetPos==3" #D2
-#targetcut = "targetPos==5" #Fe
-#targetcut = "targetPos==6" #C
-#targetcut = "targetPos==7" #W
-#targetcut = "targetPos>=5" #solid targets
-#targetcut = "targetPos>0"
+runcut = utils.runcut()
+intensityvar = utils.intensityvar()
+binedgesqie = utils.binedgesqie()
+
+targetnames = ["all targets","H2","flask","D2","empty","Fe","C","W","all solid targets"]
+
+for targetnum in range(0,9):
+    targetcut = "targetPos=="+str(targetnum)
+    if targetnum==0:
+        targetcut = "targetPos>0"
+    if targetnum==8:
+        targetcut = "targetPos>=5"
+    histqiematrix = TH1D("hqiematrix"+str(targetnum),"hqiematrix"+str(targetnum),len(binedgesqie)-1,binedgesqie)
+    normevents.Draw(intensityvar+">>+hqiematrix"+str(targetnum)," && ".join(["MATRIX1",targetcut,qualitycut,qiecut,runcut]),"")
+    histqiematrix.SetTitle("triggers, MATRIX1 events, {0};{1}".format(targetnames[targetnum],intensityvar))
+    c.Print(outfilename+".pdf");
+    histqiematrix.Write()
+
+    histqie = TH1D("hqie"+str(targetnum),"hqie"+str(targetnum),len(binedgesqie)-1,binedgesqie)
+    normevents.Draw(intensityvar+">>+hqie"+str(targetnum)," && ".join(["NIM3",targetcut,qualitycut,qiecut,runcut]),"")
+    histqie.SetTitle("triggers, NIM3 events, {0};{1}".format(targetnames[targetnum],intensityvar))
+    c.Print(outfilename+".pdf");
+    histqie.Write()
+
+
+
+binedgesmass = utils.binedgesmass()
 xfcut = "xF>0.67 && xF<0.9"
 
-intensityvar = utils.intensityvar()
-
-binedgesqie = utils.binedgesqie()
-binedgesmass = utils.binedgesmass()
-
-
-
-histqiematrix = TH1D("hqiematrix","hqiematrix",len(binedgesqie)-1,binedgesqie)
-normevents.Draw(intensityvar+">>+hqiematrix"," && ".join(["MATRIX1",targetcut,qualitycut,qiecut,spillcut]),"")
-histqiematrix.SetTitle("triggers, MATRIX1 events;"+intensityvar)
-c.Print(outfilename+".pdf");
-
-histqie = TH1D("hqie","hqie",len(binedgesqie)-1,binedgesqie)
-normevents.Draw(intensityvar+">>+hqie"," && ".join(["NIM3",targetcut,qualitycut,qiecut,spillcut]),"")
-histqie.SetTitle("triggers, NIM3 events;"+intensityvar)
-c.Print(outfilename+".pdf");
-
 events = infile.Get("save")
-#hist = TH2D("hdata","hdata",len(binedgesqie)-1,binedgesqie,35,0,7)
 hist = TH2D("hdata","hdata",len(binedgesqie)-1,binedgesqie,len(binedgesmass)-1,binedgesmass)
-events.Draw("mass:{0}>>+hdata".format(intensityvar)," && ".join([targetcut,qualitycut,spillcut,xfcut]),"colz")
+events.Draw("mass:{0}>>+hdata".format(intensityvar)," && ".join([targetcut,qualitycut,runcut,xfcut]),"colz")
 hist.SetTitle("mass vs. "+intensityvar)
 c.Print(outfilename+".pdf");
 
-
 histd1 = TH2D("hd1","hd1",len(binedgesqie)-1,binedgesqie,200,0,1e3)
-events.Draw("D1:{0}>>+hd1".format(intensityvar)," && ".join([targetcut,qualitycut,spillcut,xfcut]),"colz")
+events.Draw("D1:{0}>>+hd1".format(intensityvar)," && ".join([targetcut,qualitycut,runcut,xfcut]),"colz")
 histd1.SetTitle("D1 vs. "+intensityvar)
 c.Print(outfilename+".pdf");
 
 histd3 = TH2D("hd3","hd3",len(binedgesqie)-1,binedgesqie,200,0,1e3)
-events.Draw("D3:{0}>>+hd3".format(intensityvar)," && ".join([targetcut,qualitycut,spillcut,xfcut]),"colz")
+events.Draw("D3:{0}>>+hd3".format(intensityvar)," && ".join([targetcut,qualitycut,runcut,xfcut]),"colz")
 histd3.SetTitle("D3 vs. "+intensityvar)
 c.Print(outfilename+".pdf");
 
 histdtot = TH2D("hdtot","hdtot",len(binedgesqie)-1,binedgesqie,300,0,1500)
-events.Draw("D1+D2+D3:{0}>>+hdtot".format(intensityvar)," && ".join([targetcut,qualitycut,spillcut,xfcut]),"colz")
+events.Draw("D1+D2+D3:{0}>>+hdtot".format(intensityvar)," && ".join([targetcut,qualitycut,runcut,xfcut]),"colz")
 histdtot.SetTitle("D1+D2+D3 vs. "+intensityvar)
 c.Print(outfilename+".pdf");
 

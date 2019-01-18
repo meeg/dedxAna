@@ -31,6 +31,8 @@ spillcut = "spillID>0"
 #targetcut = "targetPos==1"
 targetcut = "targetPos>0"
 xfcut = "xF>0.67 && xF<0.9"
+#xfcut = "xF>0.67 && xF<0.9 && mass>4.2"
+#xfcut = "xF>0.1 && xF<0.9 && mass>4.2"
 
 intensityvar = utils.intensityvar()
 
@@ -54,7 +56,8 @@ binedgesqie = array.array('d',[1.0*maxqie*x/nbinsqie for x in range(0,nbinsqie+1
 #c.Print(outfilename+".pdf");
 
 #occupancyvar = "D1+D2+D3-44"
-occupancyvar = "D1-12"
+occupancyvar = "D1-(pnumHitsSt1+nnumHitsSt1)"
+#occupancyvar = "D1-12"
 histdtot = TH2D("hdtot","hdtot",len(binedgesqie)-1,binedgesqie,300,0,600)
 events.Draw("{1}:{0}>>+hdtot".format(intensityvar,occupancyvar)," && ".join([targetcut,spillcut,xfcut]),"colz")
 histdtot.SetTitle(occupancyvar+" vs. "+intensityvar)
@@ -65,6 +68,116 @@ c.SetLogx(0)
 
 nbinsX = histdtot.GetNbinsX()
 nbinsY = histdtot.GetNbinsY()
+
+efffunc = TF1("efffunc","[1]/(1+exp([2]*([0]*x-[3])))",0,1000)
+efffunc.SetParameters(1.0,1.0,0.0354,105)
+efffunc.FixParameter(0,1.0)
+#efffunc = TF1("efffunc","TMath::Max(0.0,(1.0 - 0.0050*x*[0]))",0,1500)
+efffunc.Draw()
+#efffunc = TF1("efffunc","(x*[0]<200) + (x*[0]>=200 && x*[0]<600)*(600-x*[0])/(600-200)",0,1500)
+#efffunc = TF1("efffunc","TMath::Max(0.0,(1.0 - 0.0018*x*[0]))",0,1500)
+c.Print(outfilename+".pdf");
+
+refprojnum=2
+refproj = histdtot.ProjectionY("refproj",refprojnum,refprojnum)
+refproj.SetTitle("{2} [{0}, {1}];{3}".format(histdtot.GetXaxis().GetBinLowEdge(refprojnum),histdtot.GetXaxis().GetBinUpEdge(refprojnum),intensityvar,occupancyvar))
+#refproj.GetXaxis().SetRangeUser(0,100)
+refproj.Draw()
+c.Print(outfilename+".pdf");
+refqie = histdtot.GetXaxis().GetBinCenter(refprojnum)
+
+efffunc.SetParameter(1,1.0)
+efffunc.SetParameter(0,1.0)
+denomhist = refproj.Clone("denomhist")
+for ix in range(1,denomhist.GetNbinsX()+1):
+    if denomhist.GetBinContent(ix)==1:
+        denomhist.SetBinContent(ix,0)
+denomhist.Divide(efffunc)
+denomhist.Draw()
+denominator = denomhist.Integral()
+c.Print(outfilename+".pdf");
+qieArr = array.array('d')
+effArr = array.array('d')
+for ix in range(1,nbinsX+1):
+    eff = denomhist.Clone("test"+str(ix))
+    binqie = histdtot.GetXaxis().GetBinCenter(ix)
+    efffunc.SetParameter(0,binqie/refqie)
+    eff.Multiply(efffunc)
+    #eff.Draw()
+    #c.Print(outfilename+".pdf");
+    numerator = eff.Integral()
+    #eff.Draw()
+    #efffunc.Draw("same")
+    #c.Print(outfilename+".pdf");
+    #print numerator/denominator
+    print ix, binqie, refqie, denominator, numerator
+    qieArr.append(binqie)
+    effArr.append(numerator/denominator)
+
+graph = TGraph(len(qieArr),qieArr,effArr)
+graph.Draw("A*")
+c.Print(outfilename+".pdf");
+
+
+events.Draw("2*({0})>>hlow(40,0,400)".format(occupancyvar)," && ".join([targetcut,spillcut,xfcut,intensityvar+">2000",intensityvar+"<4000"]),"colz")
+hlow = gDirectory.Get("hlow")
+#hlow.Draw()
+#c.Print(outfilename+".pdf")
+events.Draw("{0}>>hhigh(40,0,400)".format(occupancyvar)," && ".join([targetcut,spillcut,xfcut,intensityvar+">4000",intensityvar+"<8000"]),"colz")
+hhigh = gDirectory.Get("hhigh")
+#hhigh.Draw()
+#c.Print(outfilename+".pdf")
+hlow.Sumw2()
+hhigh.Sumw2()
+efffunc.FixParameter(0,1/2.0)
+hlow.Divide(efffunc)
+hhigh.Divide(hlow)
+hhigh.Draw()
+efffunc.FixParameter(0,1.0)
+hhigh.Fit(efffunc)
+c.Print(outfilename+".pdf")
+
+events.Draw("3*({0})>>hlow2(40,0,400)".format(occupancyvar)," && ".join([targetcut,spillcut,xfcut,intensityvar+">2000",intensityvar+"<4000"]),"colz")
+hlow2 = gDirectory.Get("hlow2")
+#hlow2.Draw()
+#c.Print(outfilename+".pdf")
+events.Draw("{0}>>hhigh2(40,0,400)".format(occupancyvar)," && ".join([targetcut,spillcut,xfcut,intensityvar+">6000",intensityvar+"<12000"]),"colz")
+hhigh2 = gDirectory.Get("hhigh2")
+#hhigh2.Draw()
+#c.Print(outfilename+".pdf")
+hlow2.Sumw2()
+hhigh2.Sumw2()
+efffunc.FixParameter(0,1/3.0)
+hlow2.Divide(efffunc)
+hhigh2.Divide(hlow2)
+hhigh2.Draw()
+efffunc.FixParameter(0,1.0)
+hhigh2.Fit(efffunc)
+c.Print(outfilename+".pdf")
+
+events.Draw("4*({0})>>hlow3(40,0,400)".format(occupancyvar)," && ".join([targetcut,spillcut,xfcut,intensityvar+">2000",intensityvar+"<4000"]),"colz")
+hlow3 = gDirectory.Get("hlow3")
+#hlow3.Draw()
+#c.Print(outfilename+".pdf")
+events.Draw("{0}>>hhigh3(40,0,400)".format(occupancyvar)," && ".join([targetcut,spillcut,xfcut,intensityvar+">8000",intensityvar+"<16000"]),"colz")
+hhigh3 = gDirectory.Get("hhigh3")
+#hhigh3.Draw()
+#c.Print(outfilename+".pdf")
+hlow3.Sumw2()
+hhigh3.Sumw2()
+efffunc.FixParameter(0,1/4.0)
+hlow3.Divide(efffunc)
+hhigh3.Divide(hlow3)
+hhigh3.Draw()
+efffunc.FixParameter(0,1.0)
+hhigh3.Fit(efffunc)
+c.Print(outfilename+".pdf")
+
+#graph = TGraph(len(qieArr),qieArr,scaledInterceptArr)
+#graph.Draw("A*")
+#graph.GetXaxis().SetRangeUser(0,20e3)
+#graph.GetYaxis().SetRangeUser(0,0.01)
+#c.Print(outfilename+".pdf");
 
 qieArr = array.array('d')
 scaledInterceptArr = array.array('d')
@@ -81,19 +194,7 @@ for ix in range(1,nbinsX+1):
     #proj.Draw()
     #c.Print(outfilename+".pdf");
 
-#graph = TGraph(len(qieArr),qieArr,scaledInterceptArr)
-#graph.Draw("A*")
-#graph.GetXaxis().SetRangeUser(0,20e3)
-#graph.GetYaxis().SetRangeUser(0,0.01)
-#c.Print(outfilename+".pdf");
-
-refprojnum=2
-refproj = gDirectory.Get("slice"+str(refprojnum))
-refproj.GetXaxis().SetRangeUser(0,100)
-refproj.Draw()
-c.Print(outfilename+".pdf");
-refqie = histdtot.GetXaxis().GetBinCenter(refprojnum)
-
+"""
 lowproj = gDirectory.Get("slice"+str(3))
 lowproj.Draw()
 lowproj.GetXaxis().SetRangeUser(0,200)
@@ -103,12 +204,7 @@ highproj = gDirectory.Get("slice"+str(8))
 highproj.Draw()
 highproj.GetXaxis().SetRangeUser(0,600)
 c.Print(outfilename+".pdf");
-
-#efffunc = TF1("efffunc","(x*[0]<200) + (x*[0]>=200 && x*[0]<600)*(600-x*[0])/(600-200)",0,1500)
-efffunc = TF1("efffunc","TMath::Max(0.0,(1.0 - 0.0018*x*[0]))",0,1500)
-efffunc.SetParameter(0,1)
-efffunc.Draw()
-c.Print(outfilename+".pdf");
+"""
 
 
 """
@@ -127,32 +223,6 @@ for ix in range(1,nbinsX/3+1):
     efffunc.Draw("same")
     c.Print(outfilename+".pdf");
 """
-
-qieArr = array.array('d')
-effArr = array.array('d')
-for ix in range(1,nbinsX+1):
-    proj = gDirectory.Get("slice"+str(ix))
-    eff = refproj.Clone("test"+str(ix))
-    binqie = histdtot.GetXaxis().GetBinCenter(ix)
-    efffunc.SetParameter(0,1.0)
-    eff.Divide(efffunc)
-    denominator = eff.Integral()
-    efffunc.SetParameter(0,binqie/refqie)
-    eff.Multiply(efffunc)
-    numerator = eff.Integral()
-    #eff.Draw()
-    #efffunc.Draw("same")
-    #c.Print(outfilename+".pdf");
-    #print numerator/denominator
-    qieArr.append(binqie)
-    effArr.append(numerator/denominator)
-
-graph = TGraph(len(qieArr),qieArr,effArr)
-graph.Draw("A*")
-#graph.GetXaxis().SetRangeUser(0,20e3)
-#graph.GetYaxis().SetRangeUser(0,0.01)
-c.Print(outfilename+".pdf");
-
     #eff.Rebin(int(binqie/refqie))
     #for iy in range(1,eff.GetNbinsX()+1):
         #if (refproj.GetBinContent(iy)>0):

@@ -1,8 +1,16 @@
 #!/usr/bin/env python
 import array
 
-def qualitycuts():
-    return "dataQuality==0 && RF00*PotPerQie>100"
+def qualitycuts(mix=False):
+    cutlist = []
+    cutlist.append("$dataQuality==0")
+    cutlist.append("$RF00*$PotPerQie>100")
+    cutstring = " && ".join(cutlist)
+    if mix:
+        return " && ".join([cutstring.replace('$','p'),cutstring.replace('$','n')])
+    else:
+        return cutstring.replace('$','')
+    #return "pdataQuality==0 && pRF00*pPotPerQie>100 && nRF00*nPotPerQie>100"
 
 def qiecuts():
     return "RFmax<Inh_thres"
@@ -38,17 +46,25 @@ def trackcuts():
     trackcutlist.append("Qz0<-5 && Qz0>-320") #target cut Z
     trackcutlist.append("Qchisq/(QnumHits-5)<12") #quality cut
     trackcutlist.append("Qy1/Qy3<1")
-    #trackcutlist.append("abs(abs(Qpx1-Qpx3)-.416)<.008")
-    #trackcutlist.append("abs(Qpy1-Qpy3)<.008")
-    #trackcutlist.append("abs(Qpz1-Qpz3)<.008")
+    trackcutlist.append("abs(abs(Qpx1-Qpx3)-.416)<.008")
+    trackcutlist.append("abs(Qpy1-Qpy3)<.008")
+    trackcutlist.append("abs(Qpz1-Qpz3)<.08")
     trackcutlist.append("Qy1*Qy3>0")
     #trackcutlist.append("")
     trackcuts = " && ".join(trackcutlist)
     return " && ".join([trackcuts.replace('Q','p'),trackcuts.replace('Q','n')])
 
-def intensityvar():
+def runcut():
+    return "runID>0"
+#runcut = "runID>13861 && runID<14388"
+#runcut = "spillID>610e3"
+
+def intensityvar(mix=False):
     qiepedestal = 36
-    return "(RF00-{0})*PotPerQie".format(qiepedestal)
+    if mix:
+        return "0.5*((pRF00-{0})*pPotPerQie + (nRF00-{0})*nPotPerQie)".format(qiepedestal)
+    else:
+        return "(RF00-{0})*PotPerQie".format(qiepedestal)
 
 def binedgesqie():
     maxqie = 100e3

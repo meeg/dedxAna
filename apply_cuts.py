@@ -10,8 +10,8 @@ gStyle.SetOptStat(11)
 gStyle.SetOptFit(1)
 
 events = TChain("save")
-events.Add("test.root")
-events.Add("test2.root")
+events.Add("dimuon_rs67_db01.root")
+events.Add("dimuon_rs67_db03.root")
 #infile = TFile("test.root")
 #events = infile.Get("save")
 
@@ -24,6 +24,7 @@ outfile = TFile(outfilename+".root","RECREATE")
 
 #qiecut = " && ".join([i+"<5000" for i in ["RFm{0:02d}".format(j) for j in range(8,0,-1)]+["RF00"]+["RFp{0:02d}".format(j) for j in range(1,9)]])
 qualitycut = utils.qualitycuts()
+print qualitycut
 
 dimuoncuts = utils.dimuoncuts()
 
