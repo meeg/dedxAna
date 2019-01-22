@@ -34,10 +34,34 @@ void add_trackvar(vector <pair<string,string> > &vars, string column)
 // tsv, database, port, roadset, password, output filename
 int main(int argc,char** argv)
 {
+    const string user = "seaguest";
+    //FILE * runfile = fopen(argv[1],"r");
+    const string dbname = argv[1];
+    const string host = argv[2];
+    const string port = argv[3];
+    string url = host+":"+port;
+    //const int roadset = atoi(argv[4]);
+    const string pass = argv[4];
+    TFile* saveFile = new TFile(argv[5], "recreate");
+    TTree* save = new TTree("save", "save");
+
+    //bool isMessy = (strstr(dbname,"messy") != NULL);
+    bool isMessy = (dbname.find("messy") != string::npos);
+
+
     vector <pair<string,string> > intVars;
-    intVars.push_back(make_pair("kDimuon.dimuonID","dimuonID"));
-    intVars.push_back(make_pair("kDimuon.runID","runID"));
-    intVars.push_back(make_pair("kDimuon.eventID","eventID"));
+    add_var(intVars,"kDimuon","dimuonID");
+    add_var(intVars,"kDimuon","runID");
+    add_var(intVars,"kDimuon","eventID");
+
+    add_var(intVars,"kDimuon","spillID");
+    add_var(intVars,"kDimuon","targetPos");
+
+    if (isMessy) {
+        add_var(intVars,"kEmbed","eRunID");
+        add_var(intVars,"kEmbed","eSpillID");
+        add_var(intVars,"kEmbed","eEventID");
+    }
 
     add_trackvar(intVars,"trackID");
     add_trackvar(intVars,"charge");
@@ -46,19 +70,19 @@ int main(int argc,char** argv)
     add_trackvar(intVars,"numHitsSt2");
     add_trackvar(intVars,"numHitsSt3");
     add_trackvar(intVars,"roadID");
-    intVars.push_back(make_pair("Spill.spillID","spillID"));
-    intVars.push_back(make_pair("Spill.targetPos","targetPos"));
-    intVars.push_back(make_pair("Spill.dataQuality","dataQuality"));
-    intVars.push_back(make_pair("Event.NIM1","NIM1"));
-    intVars.push_back(make_pair("Event.NIM3","NIM3"));
-    intVars.push_back(make_pair("Event.MATRIX1","MATRIX1"));
-    intVars.push_back(make_pair("Event.MATRIX2","MATRIX2"));
-    intVars.push_back(make_pair("Event.MATRIX3","MATRIX3"));
-    intVars.push_back(make_pair("Occupancy.D1","D1"));
-    intVars.push_back(make_pair("Occupancy.D2","D2"));
-    intVars.push_back(make_pair("Occupancy.D3","D3"));
-    intVars.push_back(make_pair("BeamDAQ.Inh_thres","Inh_thres"));
-    intVars.push_back(make_pair("QIE.`RF+00`","RF00"));
+    //intVars.push_back(make_pair("Spill.spillID","spillID"));
+    //intVars.push_back(make_pair("Spill.targetPos","targetPos"));
+    //intVars.push_back(make_pair("Spill.dataQuality","dataQuality"));
+    //intVars.push_back(make_pair("Event.NIM1","NIM1"));
+    //intVars.push_back(make_pair("Event.NIM3","NIM3"));
+    //intVars.push_back(make_pair("Event.MATRIX1","MATRIX1"));
+    //intVars.push_back(make_pair("Event.MATRIX2","MATRIX2"));
+    //intVars.push_back(make_pair("Event.MATRIX3","MATRIX3"));
+    //intVars.push_back(make_pair("Occupancy.D1","D1"));
+    //intVars.push_back(make_pair("Occupancy.D2","D2"));
+    //intVars.push_back(make_pair("Occupancy.D3","D3"));
+    //intVars.push_back(make_pair("BeamDAQ.Inh_thres","Inh_thres"));
+    //intVars.push_back(make_pair("QIE.`RF+00`","RF00"));
     //intVars.push_back(make_pair("",""));
 
     vector <pair<string,string> > doubleVars;
@@ -101,7 +125,7 @@ int main(int argc,char** argv)
     //doubleVars.push_back(make_pair("nTrack.chisq_target","nchisq_target"));
     //doubleVars.push_back(make_pair("nTrack.chisq_dump","nchisq_dump"));
     //doubleVars.push_back(make_pair("nTrack.chisq_upstream","nchisq_upstream"));
-    doubleVars.push_back(make_pair("QIE.PotPerQie","PotPerQie"));
+    //doubleVars.push_back(make_pair("QIE.PotPerQie","PotPerQie"));
     //doubleVars.push_back(make_pair("",""));
 
     /*
@@ -132,15 +156,6 @@ int main(int argc,char** argv)
        }
        */
 
-    const string user = "seaguest";
-    const string pass = argv[5];
-    FILE * runfile = fopen(argv[1],"r");
-    const string host = argv[2];
-    const string port = argv[3];
-    string url = host+":"+port;
-    const int roadset = atoi(argv[4]);
-    TFile* saveFile = new TFile(argv[6], "recreate");
-    TTree* save = new TTree("save", "save");
 
     sql::Driver * driver = sql::mysql::get_driver_instance();
     std::auto_ptr< sql::Connection > con(driver->connect(url, user, pass));
@@ -162,48 +177,44 @@ int main(int argc,char** argv)
         save->Branch(doubleVars[i].second.c_str(),&(doubleVarVals[i]),(doubleVars[i].second+"/D").c_str());
     }
 
-    querystring += " FROM run_RUNNUM_R008.kDimuon kDimuon";
-    querystring += " JOIN run_RUNNUM_R008.kTrack pTrack ON kDimuon.posTrackID = pTrack.trackID";
-    querystring += " JOIN run_RUNNUM_R008.kTrack nTrack ON kDimuon.negTrackID = nTrack.trackID";
-    querystring += " JOIN run_RUNNUM_R007.Spill Spill ON kDimuon.spillID = Spill.spillID";
-    querystring += " JOIN run_RUNNUM_R007.BeamDAQ BeamDAQ ON kDimuon.spillID = BeamDAQ.spillID";
-    querystring += " JOIN run_RUNNUM_R007.Event Event ON kDimuon.eventID = Event.eventID";
-    querystring += " JOIN run_RUNNUM_R007.Occupancy Occupancy ON kDimuon.eventID = Occupancy.eventID";
-    querystring += " JOIN run_RUNNUM_R007.QIE QIE ON kDimuon.eventID = QIE.eventID";
+    querystring += " FROM DBNAME.kDimuon kDimuon";
+    querystring += " JOIN DBNAME.kTrack pTrack ON kDimuon.posTrackID = pTrack.trackID";
+    querystring += " JOIN DBNAME.kTrack nTrack ON kDimuon.negTrackID = nTrack.trackID";
+    //querystring += " JOIN DBNAME.Spill Spill ON kDimuon.spillID = Spill.spillID";
+    //querystring += " JOIN DBNAME.BeamDAQ BeamDAQ ON kDimuon.spillID = BeamDAQ.spillID";
+    //querystring += " JOIN DBNAME.kEvent kEvent ON kDimuon.eventID = kEvent.eventID";
+    //querystring += " JOIN DBNAME.Occupancy Occupancy ON kDimuon.eventID = Occupancy.eventID";
+    //querystring += " JOIN DBNAME.QIE QIE ON kDimuon.eventID = QIE.eventID";
+    if (isMessy) {
+        querystring += " JOIN DBNAME.kEmbed kEmbed ON kDimuon.eventID = kEmbed.eventID";
+    }
 
-    querystring += " WHERE Spill.dataQuality=0 AND chisq_dimuon<25 AND pTrack.chisq_target<20 AND nTrack.chisq_target<20";
+    //querystring += " WHERE Spill.dataQuality=0 AND chisq_dimuon<25 AND pTrack.chisq_target<20 AND nTrack.chisq_target<20";
     //printf("%s \n",querystring.c_str());
-    
+
 
     char line[1000];
     char thisrunstr[100];
     char thishost[100];
     int thisroadset;
     int numvals;
-    while (fgets(line,1000,runfile)!=NULL) {
-        numvals = sscanf(line," %s %*d %s %*d %d %*s %*d", &thisrunstr, &thishost, &thisroadset);
-        if (numvals==3 && host==thishost && roadset==thisroadset) {
-            //printf("%s, %s, %d\n",thisrunstr, thishost, thisroadset);
-            printf(line);
-            string newquery = boost::replace_all_copy(querystring,"RUNNUM",thisrunstr);
-            //printf("%s\n",newquery.c_str());
+    string newquery = boost::replace_all_copy(querystring,"DBNAME",dbname);
+    //printf("%s\n",newquery.c_str());
 
-            try {
-                con->reconnect();
-                std::auto_ptr< sql::ResultSet > res(stmt->executeQuery(newquery));
-                //std::auto_ptr< sql::ResultSet > res(stmt->executeQuery("SELECT dimuonID FROM run_015789_R008.kDimuon"));
+    try {
+        con->reconnect();
+        std::auto_ptr< sql::ResultSet > res(stmt->executeQuery(newquery));
+        //std::auto_ptr< sql::ResultSet > res(stmt->executeQuery("SELECT dimuonID FROM run_015789_R008.kDimuon"));
 
-                while (res->next()) {
-                    for (int i=0;i<intVars.size();i++)
-                        intVarVals[i] = res->getInt(intVars[i].second);
-                    for (int i=0;i<doubleVars.size();i++)
-                        doubleVarVals[i] = res->getDouble(doubleVars[i].second);
-                    save->Fill();
-                }
-            } catch (sql::SQLException &e) {
-                printf("SQLException: %s\nquery:\n%s\n",e.what(),newquery.c_str());
-            }
+        while (res->next()) {
+            for (int i=0;i<intVars.size();i++)
+                intVarVals[i] = res->getInt(intVars[i].second);
+            for (int i=0;i<doubleVars.size();i++)
+                doubleVarVals[i] = res->getDouble(doubleVars[i].second);
+            save->Fill();
         }
+    } catch (sql::SQLException &e) {
+        printf("SQLException: %s\nquery:\n%s\n",e.what(),newquery.c_str());
     }
 
     //save->Write();

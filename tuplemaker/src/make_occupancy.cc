@@ -150,7 +150,7 @@ int main(int argc,char** argv)
     querystring += " JOIN run_RUNNUM_R007.BeamDAQ BeamDAQ ON Event.spillID = BeamDAQ.spillID";
     querystring += " JOIN run_RUNNUM_R007.QIE QIE ON Event.eventID = QIE.eventID";
 
-    querystring += " WHERE Event.eventID%100=0 OR Event.NIM3"; //prescale non-NIM3 events by 100
+    querystring += " WHERE Spill.dataQuality=0 AND (Event.eventID%100=0 OR Event.NIM3)"; //prescale non-NIM3 events by 100
     //printf("%s \n",querystring.c_str());
 
 
