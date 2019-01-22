@@ -308,4 +308,113 @@ JOIN run_015789_R007.Event Event ON kDimuon.eventID = Event.eventID
 JOIN run_015789_R007.Occupancy Occupancy ON kDimuon.eventID = Occupancy.eventID
 limit 10;
 
+mysql -h seaquel.physics.illinois.edu --user=seaguest -P 3283 -pqqbar2mu+mu-
+
+use mc_drellyan_C_M026_S002_messy_v2;
+show tables;
++--------------------------------------------+
+| Tables_in_mc_drellyan_C_M026_S002_messy_v2 |
++--------------------------------------------+
+| kDimuon                                    |
+| kEmbed                                     |
+| kEvent                                     |
+| kHit                                       |
+| kInfo                                      |
+| kTrack                                     |
++--------------------------------------------+
+
+mysql> desc kEmbed;
++----------+---------+------+-----+---------+-------+
+| Field    | Type    | Null | Key | Default | Extra |
++----------+---------+------+-----+---------+-------+
+| runID    | int(11) | YES  |     | NULL    |       |
+| spillID  | int(11) | YES  |     | NULL    |       |
+| eventID  | int(11) | NO   | PRI | 0       |       |
+| eRunID   | int(11) | YES  |     | NULL    |       |
+| eSpillID | int(11) | YES  |     | NULL    |       |
+| eEventID | int(11) | YES  |     | NULL    |       |
++----------+---------+------+-----+---------+-------+
+6 rows in set (0.19 sec)
+
+mysql> select * from kEmbed limit 10;
++-------+---------+---------+--------+----------+----------+
+| runID | spillID | eventID | eRunID | eSpillID | eEventID |
++-------+---------+---------+--------+----------+----------+
+|     1 |       1 |       2 |  13599 |   540522 |    78578 |
+|     1 |       1 |       4 |  13533 |   536411 |   112051 |
+|     1 |       1 |       5 |  14610 |   595805 |   120910 |
+|     1 |       1 |       6 |  12628 |   490782 |    75274 |
+|     1 |       1 |       7 |  15658 |   666681 |   116430 |
+|     1 |       1 |       9 |  14016 |   562303 |   136633 |
+|     1 |       1 |      10 |  14910 |   616432 |   120943 |
+|     1 |       1 |      11 |  12617 |   490375 |   147189 |
+|     1 |       1 |      13 |  12660 |   491856 |   159246 |
+|     1 |       1 |      14 |  12714 |   494403 |    77299 |
++-------+---------+---------+--------+----------+----------+
+
+mysql> desc kDimuon;
++-----------------+-------------+------+-----+---------+-------+
+| Field           | Type        | Null | Key | Default | Extra |
++-----------------+-------------+------+-----+---------+-------+
+| dimuonID        | int(11)     | NO   | PRI | 0       |       |
+| runID           | smallint(6) | YES  |     | NULL    |       |
+| spillID         | int(11)     | YES  | MUL | NULL    |       |
+| eventID         | int(11)     | YES  | MUL | NULL    |       |
+| targetPos       | int(11)     | YES  |     | NULL    |       |
+| posTrackID      | int(11)     | YES  |     | NULL    |       |
+| negTrackID      | int(11)     | YES  |     | NULL    |       |
+| dx              | double      | YES  |     | NULL    |       |
+| dy              | double      | YES  |     | NULL    |       |
+| dz              | double      | YES  |     | NULL    |       |
+| dpx             | double      | YES  |     | NULL    |       |
+| dpy             | double      | YES  |     | NULL    |       |
+| dpz             | double      | YES  |     | NULL    |       |
+| mass            | double      | YES  |     | NULL    |       |
+| xF              | double      | YES  |     | NULL    |       |
+| xB              | double      | YES  |     | NULL    |       |
+| xT              | double      | YES  |     | NULL    |       |
+| costh           | double      | YES  |     | NULL    |       |
+| phi             | double      | YES  |     | NULL    |       |
+| trackSeparation | double      | YES  |     | NULL    |       |
+| chisq_dimuon    | double      | YES  |     | NULL    |       |
+| px1             | double      | YES  |     | NULL    |       |
+| py1             | double      | YES  |     | NULL    |       |
+| pz1             | double      | YES  |     | NULL    |       |
+| px2             | double      | YES  |     | NULL    |       |
+| py2             | double      | YES  |     | NULL    |       |
+| pz2             | double      | YES  |     | NULL    |       |
+| isValid         | int(11)     | YES  |     | NULL    |       |
+| isTarget        | int(11)     | YES  |     | NULL    |       |
+| isDump          | int(11)     | YES  |     | NULL    |       |
++-----------------+-------------+------+-----+---------+-------+
+30 rows in set (0.19 sec)
+
+mysql> desc kEvent;
++---------+-------------+------+-----+---------+-------+
+| Field   | Type        | Null | Key | Default | Extra |
++---------+-------------+------+-----+---------+-------+
+| runID   | smallint(6) | YES  |     | NULL    |       |
+| spillID | int(11)     | YES  | MUL | NULL    |       |
+| eventID | int(11)     | NO   | PRI | 0       |       |
+| status  | smallint(6) | YES  |     | NULL    |       |
+| source1 | int(11)     | YES  |     | NULL    |       |
+| source2 | int(11)     | YES  |     | NULL    |       |
++---------+-------------+------+-----+---------+-------+
+6 rows in set (0.19 sec)
+
+
+use mc_drellyan_C_M026_S002_clean_v2;
+
+mysql> show tables;
++--------------------------------------------+
+| Tables_in_mc_drellyan_C_M026_S002_clean_v2 |
++--------------------------------------------+
+| kDimuon                                    |
+| kEvent                                     |
+| kHit                                       |
+| kInfo                                      |
+| kTrack                                     |
++--------------------------------------------+
+5 rows in set (0.00 sec)
+
 
