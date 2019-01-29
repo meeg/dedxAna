@@ -24,6 +24,30 @@ use run_015789_R008;
 use run_015789_R007;
 show tables;
 
+mysql> show tables;
++---------------------------+
+| Tables_in_run_015789_R008 |
++---------------------------+
+| kDimuon                   |
+| kDimuonMM                 |
+| kDimuonMix                |
+| kDimuonMixMM              |
+| kDimuonMixPP              |
+| kDimuonPP                 |
+| kEvent                    |
+| kEventMix                 |
+| kEventMixMM               |
+| kEventMixPP               |
+| kHit                      |
+| kInfo                     |
+| kTrack                    |
+| kTrackMM                  |
+| kTrackMix                 |
+| kTrackMixMM               |
+| kTrackMixPP               |
+| kTrackPP                  |
++---------------------------+
+
 
 mysql> desc kDimuon;
 +-----------------+-------------+------+-----+---------+-------+
@@ -388,6 +412,63 @@ mysql> desc kDimuon;
 | isDump          | int(11)     | YES  |     | NULL    |       |
 +-----------------+-------------+------+-----+---------+-------+
 30 rows in set (0.19 sec)
+
+mysql> desc kTrack;
++----------------+-------------+------+-----+---------+-------+
+| Field          | Type        | Null | Key | Default | Extra |
++----------------+-------------+------+-----+---------+-------+
+| trackID        | int(11)     | NO   | PRI | 0       |       |
+| runID          | smallint(6) | YES  |     | NULL    |       |
+| spillID        | int(11)     | YES  | MUL | NULL    |       |
+| eventID        | int(11)     | YES  | MUL | NULL    |       |
+| charge         | int(11)     | YES  |     | NULL    |       |
+| roadID         | int(11)     | YES  |     | NULL    |       |
+| numHits        | int(11)     | YES  |     | NULL    |       |
+| numHitsSt1     | int(11)     | YES  |     | NULL    |       |
+| numHitsSt2     | int(11)     | YES  |     | NULL    |       |
+| numHitsSt3     | int(11)     | YES  |     | NULL    |       |
+| numHitsSt4H    | int(11)     | YES  |     | NULL    |       |
+| numHitsSt4V    | int(11)     | YES  |     | NULL    |       |
+| chisq          | double      | YES  |     | NULL    |       |
+| x0             | double      | YES  |     | NULL    |       |
+| y0             | double      | YES  |     | NULL    |       |
+| z0             | double      | YES  |     | NULL    |       |
+| xD             | double      | YES  |     | NULL    |       |
+| yD             | double      | YES  |     | NULL    |       |
+| xT             | double      | YES  |     | NULL    |       |
+| yT             | double      | YES  |     | NULL    |       |
+| pxD            | double      | YES  |     | NULL    |       |
+| pyD            | double      | YES  |     | NULL    |       |
+| pzD            | double      | YES  |     | NULL    |       |
+| pxT            | double      | YES  |     | NULL    |       |
+| pyT            | double      | YES  |     | NULL    |       |
+| pzT            | double      | YES  |     | NULL    |       |
+| z0x            | double      | YES  |     | NULL    |       |
+| z0y            | double      | YES  |     | NULL    |       |
+| px0            | double      | YES  |     | NULL    |       |
+| py0            | double      | YES  |     | NULL    |       |
+| pz0            | double      | YES  |     | NULL    |       |
+| x1             | double      | YES  |     | NULL    |       |
+| y1             | double      | YES  |     | NULL    |       |
+| z1             | double      | YES  |     | NULL    |       |
+| px1            | double      | YES  |     | NULL    |       |
+| py1            | double      | YES  |     | NULL    |       |
+| pz1            | double      | YES  |     | NULL    |       |
+| x3             | double      | YES  |     | NULL    |       |
+| y3             | double      | YES  |     | NULL    |       |
+| z3             | double      | YES  |     | NULL    |       |
+| px3            | double      | YES  |     | NULL    |       |
+| py3            | double      | YES  |     | NULL    |       |
+| pz3            | double      | YES  |     | NULL    |       |
+| thbend         | double      | YES  |     | NULL    |       |
+| tx_PT          | double      | YES  |     | NULL    |       |
+| ty_PT          | double      | YES  |     | NULL    |       |
+| chisq_target   | double      | YES  |     | NULL    |       |
+| chisq_dump     | double      | YES  |     | NULL    |       |
+| chisq_upstream | double      | YES  |     | NULL    |       |
+| kmstatus       | smallint(6) | YES  |     | NULL    |       |
++----------------+-------------+------+-----+---------+-------+
+50 rows in set (0.19 sec)
 
 mysql> desc kEvent;
 +---------+-------------+------+-----+---------+-------+

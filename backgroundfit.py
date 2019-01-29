@@ -256,7 +256,8 @@ for targetnum in range(0,9):
     minfitrange = 0
     maxfitrange = 30e3
 
-    fudge = 16.0
+    #fudge = 16.0
+    fudge = 1
 
     fithi1 = projhi1.Clone("fithi1_"+namestr)
     fithi1.Divide(hEff)

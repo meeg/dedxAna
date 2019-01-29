@@ -12,8 +12,8 @@ infile = TFile("cut_data.root")
 events = infile.Get("save")
 
 normevents = TChain("save")
-normevents.Add("test_occupancy3.root")
-normevents.Add("test_occupancy4.root")
+normevents.Add("occupancy_rs67_db01.root")
+normevents.Add("occupancy_rs67_db03.root")
 #normfile = TFile("test_occupancy3.root")
 #normevents = normfile.Get("save")
 
