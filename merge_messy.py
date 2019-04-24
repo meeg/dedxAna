@@ -51,6 +51,8 @@ occbranchlist = [
         "D1",
         "RF00",
         "PotPerQie",
+        "RFmax",
+        "Inh_thres",
         "NIM3"]
 
 #events = root_numpy.root2array("dimuons.root",branches=branchlist)
@@ -81,27 +83,20 @@ print(occupancy.dtype.names)
 embed = root_numpy.root2array("mc_drellyan_C_M026_S002_messy_v2_embed.root",treename="save")
 
 sc = esutil.sqlite_util.SqliteConnection("temp.sqlite")
-try:
-    sc.execute("DROP TABLE messy")
-    sc.execute("DROP TABLE clean")
-    sc.execute("DROP TABLE occupancy")
-    sc.execute("DROP TABLE embed")
-except:
-    pass
-sc.array2table(messy,"messy")
-sc.array2table(clean,"clean")
-sc.array2table(occupancy,"occupancy")
-sc.array2table(embed,"embed")
+sc.array2table(messy,"messy",create=True)
+sc.array2table(clean,"clean",create=True)
+sc.array2table(occupancy,"occupancy",create=True)
+sc.array2table(embed,"embed",create=True)
 
-joinedclean = sc.execute("SELECT clean.mcrunID,clean.mceventID,clean.mass,clean.xF,embed.runID,embed.spillID,embed.eventID,occupancy.D1,occupancy.RF00,occupancy.PotPerQie FROM clean JOIN embed ON clean.mceventID = embed.mceventID JOIN occupancy ON embed.runID = occupancy.runID AND embed.eventID = occupancy.eventID",asarray=True)
+joinedclean = sc.execute("SELECT clean.mcrunID,clean.mceventID,clean.mass,clean.xF,embed.runID,embed.spillID,embed.eventID,occupancy.D1,occupancy.RF00,occupancy.PotPerQie,occupancy.RFmax,occupancy.Inh_thres FROM clean JOIN embed ON clean.mceventID = embed.mceventID JOIN occupancy ON embed.runID = occupancy.runID AND embed.eventID = occupancy.eventID",asarray=True)
 print(joinedclean.dtype)
 root_numpy.array2root(joinedclean,"clean.root",mode="recreate",treename="save")
 
-joinedmessy = sc.execute("SELECT messy.mcrunID,messy.mceventID,messy.mass,messy.xF,embed.runID,embed.spillID,embed.eventID,occupancy.D1,occupancy.RF00,occupancy.PotPerQie FROM messy JOIN embed ON messy.mceventID = embed.mceventID JOIN occupancy ON embed.runID = occupancy.runID AND embed.eventID = occupancy.eventID",asarray=True)
+joinedmessy = sc.execute("SELECT messy.mcrunID,messy.mceventID,messy.mass,messy.xF,embed.runID,embed.spillID,embed.eventID,occupancy.D1,occupancy.RF00,occupancy.PotPerQie,occupancy.RFmax,occupancy.Inh_thres FROM messy JOIN embed ON messy.mceventID = embed.mceventID JOIN occupancy ON embed.runID = occupancy.runID AND embed.eventID = occupancy.eventID",asarray=True)
 print(joinedmessy.dtype)
 root_numpy.array2root(joinedmessy,"messy.root",mode="recreate",treename="save")
 
-joinedmessyclean = sc.execute("SELECT messy.mcrunID,messy.mceventID,clean.mass,clean.xF,messy.mass AS massmessy,messy.xF AS xFmessy,embed.runID,embed.spillID,embed.eventID,occupancy.D1,occupancy.RF00,occupancy.PotPerQie FROM messy JOIN embed ON messy.mceventID = embed.mceventID JOIN occupancy ON embed.runID = occupancy.runID AND embed.eventID = occupancy.eventID JOIN clean ON messy.mceventID = clean.mceventID",asarray=True)
+joinedmessyclean = sc.execute("SELECT messy.mcrunID,messy.mceventID,clean.mass,clean.xF,messy.mass AS massmessy,messy.xF AS xFmessy,embed.runID,embed.spillID,embed.eventID,occupancy.D1,occupancy.RF00,occupancy.PotPerQie,occupancy.RFmax,occupancy.Inh_thres FROM messy JOIN embed ON messy.mceventID = embed.mceventID JOIN occupancy ON embed.runID = occupancy.runID AND embed.eventID = occupancy.eventID JOIN clean ON messy.mceventID = clean.mceventID",asarray=True)
 print(joinedmessyclean.dtype)
 root_numpy.array2root(joinedmessyclean,"messyclean.root",mode="recreate",treename="save")
 
